@@ -35,7 +35,7 @@ Kanıt: [`kanit/ariza-core1-geri-donus.txt`](kanit/ariza-core1-geri-donus.txt) d
 - **Yönlendirme ve yedeklilik protokollerinde kimlik doğrulama yoktur.** OSPF ve HSRP paketleri doğrulanmaz. OSPF kullanıcı ağlarında kapalıdır (`passive-interface default`), ama HSRP kullanıcı VLAN'larında çalışmak zorundadır; aynı VLAN'daki bir cihaz sahte HSRP paketi gönderebilir.
 - **DHCP ve ARP sahteciliğine karşı önlem yoktur.** DHCP snooping ve dinamik ARP denetimi yapılandırılmadı.
 - **HTTPS yalnızca kural düzeyinde sınandı.** Packet Tracer testleri tarayıcıdan HTTP (80) ile yapıldı. 443 numaralı port için yazılan kurallar denetim aracıyla doğrulandı; sertifika yönetimi kapsam dışıdır.
-- **Kenar yönlendirici engellediği paketlere yanıt verir.** Yasak bir bağlantıda kaynak cihaz "ulaşılamıyor" yanıtı alabilir; bu, dışarıdaki birine kuralın varlığını belli eder. Gerçek kurulumda bu yanıtlar dış arayüzde kapatılır.
+- **Cihazlar engelledikleri paketlere yanıt verir.** Yasak bir ping'de kaynak cihaz, çekirdek anahtardan ya da kenar yönlendiriciden "Destination host unreachable" yanıtı aldı (internetten gelen ping'de de). Bu, karşı tarafa bir kuralın varlığını belli eder. Gerçek kurulumda bu yanıtlar en azından dış arayüzde kapatılır (`no ip unreachables`); burada kapatılmadı.
 - **Kamera akışı HTTP ile temsil edildi.** Gerçek kameraların kullandığı akış protokolleri Packet Tracer'da yoktur.
 - **Parolalar.** Depodaki yapılandırma dosyalarında parola yoktur (`DEGISTIR_...`). `.pkt` dosyasının içindeki laboratuvar parolaları yalnızca bu benzetim içindir.
 

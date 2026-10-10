@@ -82,7 +82,7 @@ YAPILACAK: Packet Tracer'daki son sınamadan sonra yazılacak.
 
 **Bedeli.** EDGE tektir; bozulursa internet ve DMZ erişimi kesilir (iç ağ çalışmaya devam eder). ISS bağlantısı da tektir.
 
-**Kanıt.** [`kanit/edge-nat.txt`](kanit/edge-nat.txt), [test sonuçları](test-sonuclari.md#internet-nat-ve-dmz).
+**Kanıt.** [`kanit/edge-nat.txt`](kanit/edge-nat.txt), [test sonuçları](test-sonuclari.md#nat-internet-ve-dmz).
 
 ## 9. Kenar yönlendirici iki çekirdeğe de bağlı; yollar OSPF ile
 

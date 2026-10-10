@@ -1,209 +1,154 @@
 # Buhara Hastanesi Ağ ve Sunucu Altyapısı
 
-Kurgusal bir hastane için tasarlanmış ağ ve sunucu altyapısı. İki bölümden oluşur:
+Kurgusal bir hastane için tasarlanmış ağ ve sunucu altyapısı. İki ayrı bölümden oluşur:
 
-- **Ağ (Cisco Packet Tracer):** departmanları ayıran altı VLAN, tek yönlendirici
-  üzerinden VLAN'lar arası yönlendirme (router-on-a-stick), DHCP ve erişim kuralları (ACL).
+- **Ağ (Cisco Packet Tracer 9.0.1):** bölümlere ayrılmış, yedekli çekirdeği, internet çıkışı ve DMZ'si olan bir yerleşke ağı. Kurallar hem benzetimde elle hem de bu depodaki bir araçla doğrulandı.
 - **Sunucu (VirtualBox üzerinde Windows Server):** Active Directory, DNS ve Grup İlkesi.
 
-Ders projesi olarak geliştirildi.
+Ders projesi olarak başladı; üçüncü sürümde (v3) ağ bölümü baştan tasarlandı.
+
+> Bu bir benzetimdir. Buradaki sonuçlar gerçek bir ağın başarımı, güvenliği ya da herhangi bir standarda uyumu hakkında kanıt değildir. İki bölüm (Packet Tracer ve Windows Server) birbirine bağlı değildir.
 
 ## Sürümler
 
-Depoda yapılandırmanın iki sürümü var.
-
-| | Nerede | Durum |
+| Sürüm | Ne | Durum |
 |---|---|---|
-| **İlk sürüm** | [`packet-tracer/buhara-hastanesi.pkt`](packet-tracer/), [`configs/v1/`](configs/v1/) | Packet Tracer'da kuruldu ve denendi. Ekran görüntüleri bu sürüme ait. |
-| **İkinci sürüm** | [`configs/v2/`](configs/v2/) | İlk sürümün incelenmesinden sonra yazıldı. Erişim kuralları [`tools/acl_check.py`](tools/acl_check.py) ile denetlendi; Packet Tracer'a henüz uygulanmadı. |
+| **v3** (güncel) | İki çekirdek anahtar, üç erişim anahtarı, kenar yönlendirici, NAT, DMZ, 9 VLAN | Packet Tracer'da kuruldu ve sınandı: [`packet-tracer/buhara-v3.pkt`](packet-tracer/), [`configs/v3/`](configs/v3/) |
+| v2 | v1'in düzeltilmiş yapılandırması | Yalnızca araçla denetlendi, Packet Tracer'a uygulanmadı: [`configs/v2/`](configs/v2/) |
+| v1 | Tek yönlendirici, tek anahtar, 6 VLAN | Packet Tracer'da kuruldu: [`packet-tracer/buhara-hastanesi.pkt`](packet-tracer/), [`configs/v1/`](configs/v1/) |
 
-## Topoloji
+v1 ve v2 tarihçe olarak saklanıyor: [`docs/onceki-surumler.md`](docs/onceki-surumler.md).
+
+## v3 topolojisi
 
 ```mermaid
-graph TD
-    RTR01["RTR01 · Cisco 2911<br/>VLAN'lar arası yönlendirme, DHCP, ACL"]
-    SW01["SW01 · Cisco 2960-24TT"]
-    RTR01 ---|"G0/0 — Fa0/1 · 802.1Q trunk"| SW01
-    SW01 ---|"Fa0/2 · VLAN 10"| P1["Doktor PC"]
-    SW01 ---|"Fa0/3 · VLAN 20"| P2["Hemşire PC"]
-    SW01 ---|"Fa0/4 · VLAN 30"| P3["Yönetim PC"]
-    SW01 ---|"Fa0/5 · VLAN 40"| P4["Bilgi İşlem PC"]
-    SW01 ---|"Fa0/6 · VLAN 50"| S1["SRV01"]
-    SW01 ---|"Fa0/7 · VLAN 60"| S2["WEB-DMZ"]
+flowchart TB
+    INET["İnternet (benzetim)<br/>ISP, INTERNET-SRV, DIS-PC"]
+    EDGE["EDGE (2911)<br/>NAT, dış erişim listesi"]
+    DMZ["DMZ-WEB<br/>192.168.60.10"]
+    CORE1["CORE1 (3560)<br/>HSRP etkin, STP kök"]
+    CORE2["CORE2 (3560)<br/>HSRP yedek"]
+    ACC1["ACC-KAT1<br/>Doktor, Hemşire, Tıbbi cihaz"]
+    ACC2["ACC-KAT2<br/>İdari, Bilgi İşlem, Misafir, Kamera"]
+    ACCS["ACC-SRV<br/>DNS01, SRV01, LOG01, NVR01"]
+
+    INET ---|"seri hat"| EDGE
+    EDGE --- DMZ
+    EDGE ---|"OSPF"| CORE1
+    EDGE ---|"OSPF"| CORE2
+    CORE1 ===|"EtherChannel"| CORE2
+    CORE1 --- ACC1
+    CORE1 --- ACC2
+    CORE1 --- ACCS
+    CORE2 -.- ACC1
+    CORE2 -.- ACC2
+    CORE2 -.- ACCS
 ```
 
-## Adres planı
+Ayrıntılı şema ve Packet Tracer görüntüsü: [`docs/v3/topoloji.md`](docs/v3/topoloji.md). Adresler: [`docs/v3/adres-plani.md`](docs/v3/adres-plani.md).
 
-| VLAN | Ad | Ağ | Ağ geçidi | İlk sürüm | İkinci sürüm |
-|---:|---|---|---|---|---|
-| 10 | Doktorlar | 192.168.10.0/24 | 192.168.10.1 | DHCP | DHCP (.21 – .254) |
-| 20 | Hemşireler | 192.168.20.0/24 | 192.168.20.1 | DHCP | DHCP (.21 – .254) |
-| 30 | Yönetim | 192.168.30.0/24 | 192.168.30.1 | DHCP | DHCP (.21 – .254) |
-| 40 | Bilgi İşlem | 192.168.40.0/24 | 192.168.40.1 | DHCP | DHCP (.21 – .254); SW01 yönetim adresi .2 |
-| 50 | Sunucular | 192.168.50.0/24 | 192.168.50.1 | DHCP (SRV01 .2 aldı) | Sabit: SRV01 .2, DC01 .10 |
-| 60 | DMZ | 192.168.60.0/24 | 192.168.60.1 | DHCP (WEB-DMZ .6 aldı) | Sabit: WEB-DMZ .10 |
+## Ne yapıldı
 
-DC01, Windows Server sanal makinesinin plandaki adresidir; Packet Tracer topolojisinde bir cihaz olarak yer almaz.
+- **Bölümleme:** doktor, hemşire, idari, bilgi işlem, sunucu, tıbbi cihaz, kamera, misafir ve cihaz yönetimi ağları ayrı VLAN'larda. Varsayılan yasak: [erişim matrisinde](docs/v3/erisim-matrisi.md) yazmayan her bağlantı engellenir.
+- **Yedeklilik:** iki çekirdek anahtar arasında HSRP ile paylaşılan ağ geçidi, erişim anahtarlarından çift uplink (Rapid PVST), çekirdekler arası EtherChannel, kenar yönlendiriciye OSPF ile çift yol.
+- **İnternet ve DMZ:** personel ve misafir ağları NAT ile internete çıkar; dışarıdan yalnızca DMZ'deki web sunucusunun 80 ve 443 numaralı portları görünür.
+- **Cihaz sıkılaştırma:** yalnızca SSH, yalnızca Bilgi İşlem ağından; kullanılmayan portlar kapalı; uç portlarda port güvenliği, PortFast ve BPDU Guard.
+- **Kayıt ve saat:** ağ cihazları kayıtlarını merkezi bir sunucuya gönderir ve saatini oradan alır.
+- **Doğrulama aracı:** [`tools/acl_check_v3.py`](tools/acl_check_v3.py) cihazlardan dışa aktarılan yapılandırmayı okur ve matristeki bütün bağlantıları (izinli olmayanlar dahil) yürütür.
 
-## İlk sürüm
+Her seçimin gerekçesi ve bedeli: [`docs/v3/tasarim-kararlari.md`](docs/v3/tasarim-kararlari.md).
 
-Kurulan ve Packet Tracer'da denenenler:
+## İddialar ve kanıtları
 
-- Altı VLAN ve erişim portları; yönlendiriciye tek trunk bağlantısı.
-- Yönlendiricide her VLAN için bir alt arayüz ve bir DHCP havuzu.
-- Tek erişim kuralı: Hemşireler ağından SRV01'e (192.168.50.2) erişim kapalı.
-
-| Deneme | Sonuç | Kanıt |
+| İddia | Nasıl doğrulandı | Kanıt |
 |---|---|---|
-| Doktor PC → SRV01 ping | Başarılı | [13](docs/ekran-goruntuleri/13-doktor-sunucu-ping.png) |
-| Hemşire PC → SRV01 ping | Engellendi | [14](docs/ekran-goruntuleri/14-hemsire-sunucu-engel.png) |
-| Bütün cihazlar DHCP'den adres aldı | Başarılı | [06](docs/ekran-goruntuleri/06-dhcp-kiralamalari.png) |
+| Doktor hasta bilgi sistemini açabilir; hemşire ve idari personel açamaz | Packet Tracer'da tarayıcıdan | [E1, E5, E7](docs/v3/test-sonuclari.md#erişim-kuralları) |
+| Misafir ağı iç ağların hiçbirine ulaşamaz, internete çıkar | Ping ve tarayıcı | [E8, E9](docs/v3/test-sonuclari.md#erişim-kuralları) |
+| Tıbbi cihazlar ve kameralar yalnızca kendi sunucularına bağlanır | Ping ve tarayıcı | [E10-E13](docs/v3/test-sonuclari.md#erişim-kuralları) |
+| İç ağ internete NAT ile çıkar | EDGE çeviri tablosu | [N1-N3](docs/v3/test-sonuclari.md#nat-internet-ve-dmz) |
+| Dışarıdan yalnızca web sitesi görünür; ping, SSH ve iç adresler kapalı | İnternet tarafındaki bilgisayardan | [N4-N7](docs/v3/test-sonuclari.md#nat-internet-ve-dmz) |
+| DMZ sunucusu hiçbir yere bağlantı başlatamaz | DMZ sunucusundan ping | [N8](docs/v3/test-sonuclari.md#nat-internet-ve-dmz) |
+| Cihazlar yalnızca SSH ile ve yalnızca Bilgi İşlem ağından yönetilir | Telnet, SSH (izinli ve izinsiz kaynaktan) | [Y1-Y5](docs/v3/test-sonuclari.md#cihaz-yönetimi) |
+| Cihaz saatleri eşit, kayıtlar merkezi sunucuda | `show ntp status`, LOG01 kayıt listesi | [K1-K3](docs/v3/test-sonuclari.md#kayıt-ve-saat) |
+| Bir çekirdek kapandığında trafik kendiliğinden sürer | Sürekli ping altında CORE1'in portları kapatıldı | [A1-A4](docs/v3/test-sonuclari.md#yedeklilik) |
+| Bütün matris cihaz yapılandırmasıyla uyuşur (1109 deneme) | `tools/acl_check_v3.py` | [Araçla doğrulama](docs/v3/test-sonuclari.md#araçla-doğrulama) |
+| Araç bozuk yapılandırmayı yakalar | 9 bozma testi | [`tests/test_acl_check_v3.py`](tests/test_acl_check_v3.py) |
 
-![Hemşire bilgisayarından sunucuya ping engelleniyor](docs/ekran-goruntuleri/14-hemsire-sunucu-engel.png)
+Sınanmayanlar ve testlerde görülen tuhaflıklar da aynı sayfada yazılıdır: [test sonuçları](docs/v3/test-sonuclari.md#dürüstlük-notları).
 
-Bütün ekran görüntüleri [`docs/ekran-goruntuleri/`](docs/ekran-goruntuleri/) klasöründedir.
+## Çalıştırma
 
-### İlk sürümün eksikleri ve ikinci sürümdeki düzeltmeler
-
-| İlk sürümde | Sonucu | İkinci sürümde |
-|---|---|---|
-| DMZ havuzu DNS sunucusu olarak 192.168.10.10 dağıtıyor; diğer havuzlar 192.168.50.10 | Adres, Doktorlar havuzundan herhangi bir bilgisayara verilebilir | Bütün havuzlar 192.168.50.10 dağıtır |
-| Sunucular adreslerini DHCP'den alıyor; erişim kuralı ise sabit bir adrese (192.168.50.2) yazılmış | Sunucunun adresi değişirse kural boşa düşer | Sunucular sabit adresli; sunucu ve DMZ ağlarında DHCP havuzu yok |
-| Departmanlar arasında kural yok | Doktor, Hemşire ve Yönetim ağları birbirine erişebiliyor | Bu üç ağ birbirine ve Bilgi İşlem ağına bağlantı başlatamaz |
-| DMZ için kural yok | DMZ'deki sunucu bütün iç ağlara erişebiliyor | DMZ iç ağlara bağlantı başlatamaz; yalnızca gelen bağlantılara yanıt verir |
-| Parola, SSH ve oturum zaman aşımı yok | Konsola bağlanan herkes cihazı yönetebilir | Yerel kullanıcı, `enable secret`, yalnızca SSH, yalnızca Bilgi İşlem ağından |
-| Trunk bütün VLAN'ları taşıyor, native VLAN 1; boş portlar açık ve VLAN 1'de | Boş bir porta takılan cihaz ağa girer | Trunk yalnızca altı VLAN'ı taşır, native VLAN boş bir VLAN; boş portlar kapalı |
-| Uç portlarda koruma yok | Porta ikinci bir cihaz ya da anahtar bağlanabilir | Port güvenliği (tek MAC), PortFast ve BPDU Guard |
-| Yönlendiricinin adı `BUHARA-CORE-SW01`, anahtarın adı `Switch` | Ekran görüntülerindeki adla (`BUHARA-HASTANESI-RTR01`) uyuşmuyor | `BUHARA-RTR01`, `BUHARA-SW01` |
-
-## Erişim kuralları
-
-Tablolar, ilgili yapılandırma dosyasından `tools/acl_check.py --matrix` ile üretildi.
-✓: ping başarılı (istek gider, yanıt döner). ✗: engellenir.
-
-**İlk sürüm**
-
-| Kaynak \ Hedef | DOKTOR-PC | HEMSIRE-PC | YONETIM-PC | BILGIISLEM-PC | SRV01 | WEB-DMZ |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **DOKTOR-PC** | – | ✓ | ✓ | ✓ | ✓ | ✓ |
-| **HEMSIRE-PC** | ✓ | – | ✓ | ✓ | ✗ | ✓ |
-| **YONETIM-PC** | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| **BILGIISLEM-PC** | ✓ | ✓ | ✓ | – | ✓ | ✓ |
-| **SRV01** | ✓ | ✗ | ✓ | ✓ | – | ✓ |
-| **WEB-DMZ** | ✓ | ✓ | ✓ | ✓ | ✓ | – |
-
-**İkinci sürüm**
-
-| Kaynak \ Hedef | DOKTOR-PC | HEMSIRE-PC | YONETIM-PC | BILGIISLEM-PC | DC01 | SRV01 | WEB-DMZ |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **DOKTOR-PC** | – | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ |
-| **HEMSIRE-PC** | ✗ | – | ✗ | ✗ | ✓ | ✗ | ✓ |
-| **YONETIM-PC** | ✗ | ✗ | – | ✗ | ✓ | ✓ | ✓ |
-| **BILGIISLEM-PC** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| **DC01** | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ |
-| **SRV01** | ✓ | ✗ | ✓ | ✓ | ✓ | – | ✓ |
-| **WEB-DMZ** | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | – |
-
-İkinci sürümün kuralları:
-
-- Bütün kullanıcı ağları DC01'e (DNS, oturum açma) erişir.
-- SRV01'e Doktorlar, Yönetim ve Bilgi İşlem erişir; Hemşireler erişemez.
-- Kullanıcı ağları DMZ'deki web sunucusuna yalnızca web (80, 443) ve ping ile erişir.
-- Bilgi İşlem, destek ve yönetim için bütün ağlara erişir.
-- Kurallar her ağın yönlendiriciye giriş yönünde uygulanır; listeler açık bir `deny ip any any` ile biter.
-
-## Kuralların denetimi
-
-`tools/acl_check.py`, yönlendirici yapılandırmasını okuyup bir beklenti dosyasındaki
-her bağlantıyı kurallar üzerinde yürütür: paket hangi arayüzden girer, hangi kuralla
-eşleşir, yanıt geri dönebilir mi. Ayrıca DHCP havuzlarını denetler; örneğin ilk
-sürümdeki DNS adresi hatasını bulur.
+**Denetim aracı ve testler** (Python 3.10+, ek paket gerekmez):
 
 ```bash
-python tools/acl_check.py configs/v2/RTR01.cfg tests/beklentiler_v2.json --matrix
-```
-
-```
-TAMAM  DOKTOR-PC -> SRV01 ping: geçti  [DOKTORLAR-GIRIS: permit ip 192.168.10.0 0.0.0.255 host 192.168.50.2]
-TAMAM  HEMSIRE-PC -> SRV01 ping: engellendi  [istek engellendi - HEMSIRELER-GIRIS: deny ip any any]
-TAMAM  WEB-DMZ -> DC01 udp/53: engellendi  [sorgu engellendi - DMZ-GIRIS: deny ip any any]
-...
-73/73 deneme beklendiği gibi, 0 DHCP uyarısı
-```
-
-Aynı beklentiler ilk sürümde çalıştırıldığında 26'sı tutmaz:
-
-```bash
-python tools/acl_check.py configs/v1/RTR01.cfg tests/beklentiler_v2.json
-```
-
-Testler (Python 3.10+, ek paket gerekmez):
-
-```bash
+python tools/acl_check_v3.py configs/v3 docs/v3/erisim-matrisi.json            # özet
+python tools/acl_check_v3.py configs/v3 docs/v3/erisim-matrisi.json --ayrinti  # her deneme ve eşleşen kural
+python tools/acl_check_v3.py configs/v3 docs/v3/erisim-matrisi.json --tablo    # erişim tablosu (Markdown)
 python -m unittest discover -s tests
 ```
 
-Testler betiğin kendisini, ilk sürümde modelin ekran görüntülerindeki sonuçları
-vermesini ve ikinci sürümde yönlendirici ile anahtar dosyalarının birbiriyle
-tutarlı olmasını (trunk'taki VLAN'lar, native VLAN, sabit adreslerin DHCP dışında kalması) denetler.
+**Packet Tracer dosyası:**
 
-Betik bir IOS benzetimi değildir: yalnızca doğrudan bağlı ağlar arasındaki
-yönlendirmeyi ve ACL eşleştirmesini modeller.
+1. `packet-tracer/buhara-v3.pkt` dosyasını Cisco Packet Tracer 9.0.1 ya da daha yenisiyle açın.
+2. Bağlantıların oturması için yaklaşık bir dakika bekleyin (Spanning Tree, OSPF ve HSRP).
+3. Bir uç cihazın **Desktop** sekmesinden komut satırını ya da tarayıcıyı açıp [test sonuçları](docs/v3/test-sonuclari.md) sayfasındaki denemeleri yineleyin. Açılıştan sonraki ilk paketler kaybolabilir; denemeyi bir kez daha yapın.
+4. Bir ağ cihazının yapılandırmasını görmek için cihazın **Config** sekmesindeki dışa aktarma düğmesini kullanabilirsiniz; bunun için parola gerekmez.
 
-## İkinci sürümü Packet Tracer'da çalıştırma
+**Parolalar:** `.pkt` dosyasındaki cihazlarda yalnızca bu benzetim için üretilmiş laboratuvar parolaları vardır; depoda yazılı değildir. `configs/v3/` altındaki dosyalarda parolaların yerinde `DEGISTIR_ENABLE_PAROLASI` ve `DEGISTIR_SSH_PAROLASI` yer tutucuları bulunur. Ağı sıfırdan kurmak için bu dosyaları kendi parolalarınızla boş cihazlara yapıştırın; cihaz modelleri, kablolama ve sunucu ayarları [adres planında](docs/v3/adres-plani.md) yazılıdır.
 
-1. `packet-tracer/buhara-hastanesi.pkt` dosyasının bir kopyasını açın.
-2. `configs/v2/` altındaki iki dosyada `DEGISTIR_` ile başlayan parolaları değiştirin.
-3. Yönlendiricide: `enable`, `erase startup-config`, `reload`. Açılışta kurulum
-   sihirbazına `no` deyin; `enable`, `configure terminal` ve `RTR01.cfg` içeriğini yapıştırın.
-4. Anahtarda: `enable`, `erase startup-config`, `delete vlan.dat`, `reload`;
-   ardından `configure terminal` ve `SW01.cfg` içeriğini yapıştırın.
-5. Sunuculara sabit adres verin:
-   SRV01 192.168.50.2 / 255.255.255.0, ağ geçidi 192.168.50.1, DNS 192.168.50.10;
-   WEB-DMZ 192.168.60.10 / 255.255.255.0, ağ geçidi 192.168.60.1.
-6. Bilgisayarlarda DHCP'yi yenileyin, iki cihazda `copy running-config startup-config` çalıştırın.
-7. `tests/beklentiler_v2.json` içindeki denemeleri (ping, web tarayıcı, SSH) cihazlardan tekrarlayın.
+## Belgeler
+
+| Belge | İçerik |
+|---|---|
+| [`docs/v3/topoloji.md`](docs/v3/topoloji.md) | Şema, katmanlar |
+| [`docs/v3/adres-plani.md`](docs/v3/adres-plani.md) | VLAN'lar, adresler, portlar, DHCP havuzları |
+| [`docs/v3/erisim-matrisi.md`](docs/v3/erisim-matrisi.md) | Kim nereye erişir, gerekçeleri, yapılandırmadan hesaplanan tablo |
+| [`docs/v3/tasarim-kararlari.md`](docs/v3/tasarim-kararlari.md) | Her seçim: ne, neden, bedeli |
+| [`docs/v3/test-sonuclari.md`](docs/v3/test-sonuclari.md) | Beklenen, gözlenen, kanıt; sınanmayanlar |
+| [`docs/v3/sinirlamalar.md`](docs/v3/sinirlamalar.md) | Bilinen sınırlamalar, Packet Tracer'ın kabul etmediği komutlar |
+| [`docs/onceki-surumler.md`](docs/onceki-surumler.md) | v1 ve v2 |
 
 ## Windows Server bölümü
 
-VirtualBox'ta çalışan bir Windows Server sanal makinesinde (DC01) kuruldu:
+Bu bölüm ilk sürümde kuruldu ve v3'te değiştirilmedi. Packet Tracer benzetimine bağlı değildir.
 
-- **Active Directory:** her departman için bir yapısal birim (OU): `Doktorlar`,
-  `Hemsireler`, `Yonetim`, `BilgiIslem`. Her birinde bir güvenlik grubu
-  (`GRP_Doktorlar` vb.) ve bir örnek kullanıcı.
+VirtualBox'ta çalışan bir Windows Server sanal makinesinde (DC01):
+
+- **Active Directory:** her departman için bir yapısal birim (OU): `Doktorlar`, `Hemsireler`, `Yonetim`, `BilgiIslem`. Her birinde bir güvenlik grubu (`GRP_Doktorlar` vb.) ve bir örnek kullanıcı.
 - **DNS:** etki alanı bölgesi; DC01 ve bir istemci (PC01) için kayıtlar.
 - **Grup İlkesi:** Denetim Masası'na erişimi kapatan `GPO_ControlPanel_Kapat`.
 - **Windows Server Backup** özelliği yüklü.
 
 ![Active Directory yapısal birimleri](docs/ekran-goruntuleri/18-ad-ou-yapisi.png)
 
-Sanal makinedeki etki alanının adı `acibadem.local`'dır. Bu yalnızca bir
-laboratuvar adıdır; gerçek bir kurumla ilgisi yoktur.
+Bilinen eksikleri:
+
+- Sanal makinedeki etki alanının adı `acibadem.local`'dır. Bu yalnızca bir laboratuvar adıdır; gerçek bir kurumla ilgisi yoktur. Packet Tracer tarafında kullanılan ad `buhara.local`'dır; ikisi henüz eşitlenmedi.
+- Yedekleme zamanlanmadı: Windows Server Backup yüklü, ancak bir yedekleme planı tanımlı değil ve geri yükleme denenmedi ([ekran görüntüsü](docs/ekran-goruntuleri/25-windows-server-backup.png)).
+- `GPO_ControlPanel_Kapat` etki alanı düzeyinde bağlı olduğundan Bilgi İşlem dahil bütün birimleri kapsar; yalnızca ilgili kullanıcı OU'larına bağlanması daha doğru olur.
 
 ## Sınırlamalar
 
-- **İki bölüm birbirine bağlı değil.** Packet Tracer benzetimi ile Windows Server
-  sanal makinesi ayrı ortamlardır. DC01 sanal ağda 192.168.10.10 adresini
-  kullanır; adres planındaki yeri 192.168.50.10'dur.
-- **İkinci sürüm Packet Tracer'da denenmedi.** Kuralların mantığı betikle
-  denetlendi; komutların cihazda kabul edildiği ve sonuçların aynı çıktığı ayrıca doğrulanmalıdır.
-- **İnternet bağlantısı yok.** Topolojide dış ağ, NAT ya da güvenlik duvarı
-  bulunmuyor; DMZ yalnızca iç ağlardan ayrılmış bir sunucu ağıdır.
-- **Kurallar durum bilgisi tutmaz.** Yanıt trafiği `established` anahtar sözcüğü
-  ve ICMP türüyle ayırt edilir; gerçek bir ağda bu iş için güvenlik duvarı kullanılır.
-- **Yedeklilik yok.** Tek yönlendirici, tek anahtar ve tek trunk bağlantısı var.
-- **Yedekleme zamanlanmadı.** Windows Server Backup yüklü, ancak bir yedekleme
-  planı tanımlı değil ([ekran görüntüsü](docs/ekran-goruntuleri/25-windows-server-backup.png)).
-- **Grup ilkesi etki alanı düzeyinde bağlı.** `GPO_ControlPanel_Kapat` bu hâliyle
-  Bilgi İşlem dahil bütün birimleri kapsar; yalnızca ilgili kullanıcı OU'larına bağlanması daha doğru olur.
+En önemlileri (tam liste: [`docs/v3/sinirlamalar.md`](docs/v3/sinirlamalar.md)):
+
+- Erişim listeleri durum bilgisi tutmaz; bölgeler arasında durum izleyen bir güvenlik duvarı yoktur.
+- Aynı VLAN içindeki trafik süzülmez.
+- Kenar yönlendirici, ISS bağlantısı ve sunucular yedeksizdir.
+- Çekirdek arızasında geçiş kayıpsız değildir; ölçülen kayıplar test sonuçlarında yazılıdır.
+- Packet Tracer bazı komutları kabul etmedi; yerine ne yapıldığı sınırlamalar sayfasındadır.
 
 ## Depo yapısı
 
 ```
-packet-tracer/buhara-hastanesi.pkt   ilk sürümün Packet Tracer dosyası
-configs/v1/                          ilk sürüm: dosyadaki running-config çıktıları
-configs/v2/                          ikinci sürüm: düzeltilmiş yapılandırma
-tools/acl_check.py                   erişim kuralı ve DHCP denetimi
+packet-tracer/buhara-v3.pkt          v3 Packet Tracer dosyası
+packet-tracer/buhara-hastanesi.pkt   v1 Packet Tracer dosyası (tarihçe)
+configs/v3/                          v3: cihazlardan dışa aktarılan yapılandırmalar (parolasız)
+configs/v1/, configs/v2/             önceki sürümler
+docs/v3/                             v3 belgeleri, ekran görüntüleri ve konsol çıktıları
+docs/onceki-surumler.md              v1 ve v2'nin anlatımı
+docs/ekran-goruntuleri/              v1 ve Windows Server ekran görüntüleri
+tools/acl_check_v3.py                v3 erişim kuralı denetimi (çok cihazlı, NAT dahil)
+tools/acl_check.py                   v1/v2 denetimi (tek yönlendirici)
+tools/yapilandirma_temizle.py        dışa aktarılan yapılandırmadan parola özetlerini çıkarır
 tests/                               beklenti dosyaları ve birim testleri
-docs/ekran-goruntuleri/              Packet Tracer ve Windows Server ekran görüntüleri
 ```
