@@ -1,0 +1,116 @@
+{
+  "aciklama": "Buhara Hastanesi v3 erişim matrisi. Varsayılan: burada yazmayan her bağlantı yasaktır. tools/acl_check_v3.py bu dosyayı okur ve her kaynak-hedef-servis üçlüsünü cihaz yapılandırmaları üzerinde sınar.",
+  "servisler": {
+    "ping": {"tur": "ping"},
+    "web": {"tur": "tcp", "port": 80},
+    "web-tls": {"tur": "tcp", "port": 443},
+    "dns": {"tur": "udp", "port": 53},
+    "ssh": {"tur": "tcp", "port": 22}
+  },
+  "bolgeler": {
+    "Doktorlar": "192.168.10.0/24",
+    "Hemsireler": "192.168.20.0/24",
+    "Idari": "192.168.30.0/24",
+    "BilgiIslem": "192.168.40.0/24",
+    "Sunucular": "192.168.50.0/24",
+    "DMZ": "192.168.60.0/24",
+    "TibbiCihazlar": "192.168.70.0/24",
+    "Kameralar": "192.168.80.0/24",
+    "Misafir": "192.168.90.0/24",
+    "CihazYonetimi": "192.168.99.0/24"
+  },
+  "cihazlar": {
+    "PC-DOKTOR": "192.168.10.100",
+    "PC-HEMSIRE": "192.168.20.100",
+    "PC-IDARI": "192.168.30.100",
+    "PC-BT": "192.168.40.100",
+    "DNS01": "192.168.50.10",
+    "SRV01": "192.168.50.20",
+    "LOG01": "192.168.50.30",
+    "NVR01": "192.168.50.40",
+    "DMZ-WEB": "192.168.60.10",
+    "TIBBI-CIHAZ": "192.168.70.10",
+    "KAMERA": "192.168.80.10",
+    "PC-MISAFIR": "192.168.90.100",
+    "INTERNET-SRV": "198.51.100.10",
+    "DIS-PC": "192.0.2.10"
+  },
+  "internet_cihazlari": ["INTERNET-SRV", "DIS-PC"],
+  "disaridan_gorunen": {"HASTANE-WEB-DIS": "203.0.113.2"},
+  "izinler": [
+    {"kaynak": "PC-DOKTOR", "hedef": "DNS01", "servisler": ["dns"], "neden": "Ad çözümleme"},
+    {"kaynak": "PC-DOKTOR", "hedef": "SRV01", "servisler": ["web", "web-tls"], "neden": "Hasta bilgi sistemi uygulaması"},
+    {"kaynak": "PC-DOKTOR", "hedef": "DMZ-WEB", "servisler": ["web", "web-tls"], "neden": "Hastane web sitesi"},
+    {"kaynak": "PC-DOKTOR", "hedef": "INTERNET-SRV", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+    {"kaynak": "PC-DOKTOR", "hedef": "DIS-PC", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+
+    {"kaynak": "PC-HEMSIRE", "hedef": "DNS01", "servisler": ["dns"], "neden": "Ad çözümleme"},
+    {"kaynak": "PC-HEMSIRE", "hedef": "DMZ-WEB", "servisler": ["web", "web-tls"], "neden": "Hastane web sitesi"},
+    {"kaynak": "PC-HEMSIRE", "hedef": "INTERNET-SRV", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+    {"kaynak": "PC-HEMSIRE", "hedef": "DIS-PC", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+
+    {"kaynak": "PC-IDARI", "hedef": "DNS01", "servisler": ["dns"], "neden": "Ad çözümleme"},
+    {"kaynak": "PC-IDARI", "hedef": "DMZ-WEB", "servisler": ["web", "web-tls"], "neden": "Hastane web sitesi"},
+    {"kaynak": "PC-IDARI", "hedef": "INTERNET-SRV", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+    {"kaynak": "PC-IDARI", "hedef": "DIS-PC", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+
+    {"kaynak": "PC-BT", "hedef": "PC-DOKTOR", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "PC-HEMSIRE", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "PC-IDARI", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "DNS01", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "Yönetim ve ad çözümleme"},
+    {"kaynak": "PC-BT", "hedef": "SRV01", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "LOG01", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "NVR01", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "DMZ-WEB", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "TIBBI-CIHAZ", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "KAMERA", "servisler": ["ping", "web", "web-tls", "ssh"], "neden": "Yönetim ve sorun giderme"},
+    {"kaynak": "PC-BT", "hedef": "INTERNET-SRV", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+    {"kaynak": "PC-BT", "hedef": "DIS-PC", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+
+    {"kaynak": "TIBBI-CIHAZ", "hedef": "SRV01", "servisler": ["web", "web-tls"], "neden": "Cihaz verisini uygulamaya gönderme"},
+    {"kaynak": "KAMERA", "hedef": "NVR01", "servisler": ["web", "web-tls"], "neden": "Kayıt sunucusuna bağlanma (gerçekte RTSP; benzetimde HTTP ile temsil edilir)"},
+
+    {"kaynak": "PC-MISAFIR", "hedef": "INTERNET-SRV", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+    {"kaynak": "PC-MISAFIR", "hedef": "DIS-PC", "servisler": ["ping", "web", "web-tls", "dns", "ssh"], "neden": "İnternet (NAT ile)"},
+
+    {"kaynak": "INTERNET-SRV", "hedef": "HASTANE-WEB-DIS", "servisler": ["web", "web-tls"], "neden": "Dışarıdan yalnızca DMZ web (sabit NAT)"},
+    {"kaynak": "DIS-PC", "hedef": "HASTANE-WEB-DIS", "servisler": ["web", "web-tls"], "neden": "Dışarıdan yalnızca DMZ web (sabit NAT)"}
+  ],
+  "ag_gecidi_pingleri": [
+    {"kaynak": "PC-DOKTOR", "ag_gecidi": "192.168.10.1"},
+    {"kaynak": "PC-HEMSIRE", "ag_gecidi": "192.168.20.1"},
+    {"kaynak": "PC-IDARI", "ag_gecidi": "192.168.30.1"},
+    {"kaynak": "PC-BT", "ag_gecidi": "192.168.40.1"},
+    {"kaynak": "SRV01", "ag_gecidi": "192.168.50.1"},
+    {"kaynak": "DMZ-WEB", "ag_gecidi": "192.168.60.1"},
+    {"kaynak": "TIBBI-CIHAZ", "ag_gecidi": "192.168.70.1"},
+    {"kaynak": "KAMERA", "ag_gecidi": "192.168.80.1"},
+    {"kaynak": "PC-MISAFIR", "ag_gecidi": "192.168.90.1"}
+  ],
+  "dhcp_aglari": ["Doktorlar", "Hemsireler", "Idari", "BilgiIslem", "Misafir"],
+  "ag_cihazlari": {
+    "CORE1": {"adres": "192.168.99.2", "yapilandirma": "CORE1.cfg"},
+    "CORE2": {"adres": "192.168.99.3", "yapilandirma": "CORE2.cfg"},
+    "ACC-KAT1": {"adres": "192.168.99.11", "yapilandirma": "ACC-KAT1.cfg"},
+    "ACC-KAT2": {"adres": "192.168.99.12", "yapilandirma": "ACC-KAT2.cfg"},
+    "ACC-SRV": {"adres": "192.168.99.13", "yapilandirma": "ACC-SRV.cfg"},
+    "EDGE": {"adres": "10.0.0.1", "yapilandirma": "EDGE.cfg"}
+  },
+  "ssh_yonetimi": {
+    "izinli": ["PC-BT"],
+    "yasak": ["PC-DOKTOR", "PC-HEMSIRE", "PC-IDARI", "TIBBI-CIHAZ", "KAMERA", "PC-MISAFIR", "SRV01", "DMZ-WEB"],
+    "internetten": {"kaynak": "DIS-PC", "hedef": "203.0.113.2"}
+  },
+  "altyapi_akislari": [
+    {"kaynak": "192.168.99.11", "hedef": "LOG01", "tur": "udp-tek-yon", "port": 514, "neden": "ACC-KAT1 syslog"},
+    {"kaynak": "192.168.99.12", "hedef": "LOG01", "tur": "udp-tek-yon", "port": 514, "neden": "ACC-KAT2 syslog"},
+    {"kaynak": "192.168.99.13", "hedef": "LOG01", "tur": "udp-tek-yon", "port": 514, "neden": "ACC-SRV syslog"},
+    {"kaynak": "192.168.99.11", "hedef": "LOG01", "tur": "ntp", "neden": "ACC-KAT1 saat eşitleme"},
+    {"kaynak": "192.168.99.12", "hedef": "LOG01", "tur": "ntp", "neden": "ACC-KAT2 saat eşitleme"},
+    {"kaynak": "192.168.99.13", "hedef": "LOG01", "tur": "ntp", "neden": "ACC-SRV saat eşitleme"},
+    {"kaynak": "10.0.0.1", "hedef": "LOG01", "tur": "ntp", "neden": "EDGE saat eşitleme (CORE1 üzerinden)"},
+    {"kaynak": "10.0.0.5", "hedef": "LOG01", "tur": "ntp", "neden": "EDGE saat eşitleme (CORE2 üzerinden)"},
+    {"kaynak": "192.168.50.2", "hedef": "LOG01", "tur": "ntp", "neden": "CORE1 saat eşitleme"},
+    {"kaynak": "192.168.50.3", "hedef": "LOG01", "tur": "ntp", "neden": "CORE2 saat eşitleme"}
+  ]
+}
