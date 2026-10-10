@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Packet Tracer yedekleri
+*.pkt~
+*.pka~
+
+# Ofis geçici dosyaları ve işletim sistemi artıkları
+~$*
+.DS_Store
+Thumbs.db
+desktop.ini

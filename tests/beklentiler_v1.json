@@ -1,0 +1,19 @@
+{
+  "description": "İlk sürüm: Packet Tracer ekran görüntüleriyle belgelenen sonuçlar.",
+  "hosts": {
+    "DOKTOR-PC": "192.168.10.2",
+    "HEMSIRE-PC": "192.168.20.2",
+    "YONETIM-PC": "192.168.30.2",
+    "BILGIISLEM-PC": "192.168.40.2",
+    "SRV01": "192.168.50.2",
+    "WEB-DMZ": "192.168.60.6"
+  },
+  "router_addresses": {
+    "RTR01-50": "192.168.50.1"
+  },
+  "tests": [
+    {"kind": "ping", "from": "DOKTOR-PC", "to": "SRV01", "expect": "allow", "evidence": "13-doktor-sunucu-ping.png"},
+    {"kind": "ping", "from": "HEMSIRE-PC", "to": "SRV01", "expect": "deny", "evidence": "14-hemsire-sunucu-engel.png"},
+    {"kind": "ping", "from": "SRV01", "to": "RTR01-50", "expect": "allow", "evidence": "17-sunucu-ag-gecidi-ping.png"}
+  ]
+}
