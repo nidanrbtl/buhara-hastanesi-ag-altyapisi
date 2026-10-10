@@ -283,10 +283,21 @@ class Network:
                     return static.local_ip, source, None, static.local_port
         return destination, source, None, port
 
+    def _ends_on_device(self, destination: IPv4Address, port: int | None, protocol: str) -> bool:
+        """Paket bir ağ cihazının kendi adresinde mi son buluyor (sabit NAT ile içeri aktarılmıyorsa)?"""
+        if not (self.owner(destination) or self.is_virtual(destination)):
+            return False
+        return not any((s.protocol, s.global_ip, s.global_port) == (protocol, destination, port)
+                       for s in self.edge.nat_statics)
+
     def tcp(self, source: IPv4Address, destination: IPv4Address, port: int, active: Device) -> Verdict:
         syn = self.deliver(Packet("tcp", source, destination, CLIENT_PORT, port), active)
         if not syn.allowed:
             return Verdict(False, f"SYN engellendi - {syn.reason}")
+        if port != 22 and self._ends_on_device(destination, port, "tcp"):
+            # Paket listelerden geçse bile ağ cihazları yalnızca SSH dinler; örneğin sabit NAT
+            # satırı silinirse 203.0.113.2:80 kenar yönlendiricinin kendisinde kalır ve yanıtsızdır.
+            return Verdict(False, "ağ cihazının kendi adresi: bu portu dinleyen servis yok")
         r_source, r_destination, pat, r_port = self._reply_route(source, destination, port, "tcp")
         syn_ack = self.deliver(
             Packet("tcp", r_source, r_destination, r_port, CLIENT_PORT, established=True), active, pat)
@@ -302,6 +313,8 @@ class Network:
         query = self.deliver(Packet("udp", source, destination, source_port, port), active)
         if not query.allowed:
             return Verdict(False, f"sorgu engellendi - {query.reason}")
+        if self._ends_on_device(destination, port, "udp"):
+            return Verdict(False, "ağ cihazının kendi adresi: bu portu dinleyen servis yok")
         r_source, r_destination, pat, r_port = self._reply_route(source, destination, port, "udp")
         answer = self.deliver(Packet("udp", r_source, r_destination, r_port, source_port), active, pat)
         if not answer.allowed:
