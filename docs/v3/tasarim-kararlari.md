@@ -48,9 +48,32 @@ Her karar için üç şey yazılı: ne seçildi, neden seçildi, bedeli ne. Öl�
 
 **Kanıt.** Erişim anahtarının bir uplink'i kesildiğinde kayıp olmadı, geri takıldığında 5 paket kayboldu: [test sonuçları](test-sonuclari.md#yedeklilik).
 
-## 5. Çekirdekler arası bağlantı: EtherChannel
+## 5. Çekirdekler arası bağlantı: EtherChannel (LACP)
 
-YAPILACAK: Packet Tracer'daki son sınamadan sonra yazılacak.
+**Karar.** İki çekirdek arasındaki iki Gigabit hat, LACP ile (`channel-group 1 mode active`) tek bir mantıksal bağlantı (Po1) olarak çalışır. Po1 bir trunk'tır; bütün kullanıcı VLAN'larını ve çekirdekler arası geçiş VLAN'ını (100) taşır. EtherChannel, birden çok fiziksel hattı tek hat gibi kullanmaktır; LACP iki ucun bunu birbirine sorarak kurmasını sağlayan protokoldür.
+
+**Neden.** İki ayrı hat olsaydı Spanning Tree birini bekletirdi. Demet halinde ikisi de kullanılır ve biri koptuğunda bağlantı sürer. LACP seçildi, çünkü karşı uç demete hazır değilse (yanlış kablo, yanlış ayar) hattı demete almaz; sabit kip (`mode on`) bunu denetlemez.
+
+**Kurulumda yapılan hata ve düzeltmesi.** İlk kurulumda trunk ayarları üye portlara, Port-channel arayüzü oluşmadan önce verilmişti. Portlar demete girmedi (`Po1(SD)`, üyeler "suspended"; konsolda "vlan mask is different" iletisi). Üyeler sıfırlanıp trunk ayarı yalnızca Port-channel arayüzüne verilince demet kuruldu. A1 ve A2 arıza testleri bu hata fark edilmeden önce yapıldı. Kanıt: [`kanit/core1-etherchannel-trunk.txt`](kanit/core1-etherchannel-trunk.txt).
+
+**Benzetimde görülen ve çözülemeyen bir davranış.** Arıza testlerinde CORE1'i "kapatmak" için portları `shutdown` ile kapatıp `no shutdown` ile açtım. Bu yöntemle yapılan bir testin (A4) ardından demetin bir üyesi tek yönde çalışmaz kaldı: CORE1 iki üyeyi de demette gösteriyordu, ama CORE1'den CORE2'ye giden bazı çerçeveler ulaşmıyordu. Sonuç: CORE2, dört VLAN'da kendini de ağ geçidi sandı (iki cihazın aynı anda etkin olması, "split-brain") ve çekirdekler arası OSPF komşuluğu kurulamadı. Doktor bilgisayarının trafiği etkilenmediği için ping testi bunu göstermedi; iki çekirdekte `show etherchannel summary` ve `show standby brief` çalıştırılınca görüldü.
+
+Bunun üzerine denenenler ve sonuçları:
+
+| Deneme | Sonuç | Kanıt |
+|---|---|---|
+| A4'ten sonra (LACP, portlar kapatılıp açıldı) | Kusur var: CORE2'de üye `(I)`, dört VLAN'da iki taraf da etkin | [`lacp-uye-ayrik-kaldi-core2.txt`](kanit/lacp-uye-ayrik-kaldi-core2.txt) |
+| Sabit kip (`mode on`), tek üye kapatılıp açıldı | Kusur sürdü: üye demetteyken çerçeveler ulaşmıyor, kapalıyken ulaşıyor | [`etherchannel-uye-tek-yonde-sagir.txt`](kanit/etherchannel-uye-tek-yonde-sagir.txt) |
+| CORE1 `reload` komutuyla yeniden başlatıldı (A5, LACP) | Kusur yok: demet kuruldu, CORE2 dokuz VLAN'da yedek, OSPF tam | [`ariza5-core1-reload.txt`](kanit/ariza5-core1-reload.txt) |
+| LACP ile iki kez daha portlar kapatılıp açıldı | İkisinde de kusur görülmedi (ikincisinde son durum beklenmeden bırakıldı) | [`etherchannel-tekrar-denemeleri.txt`](kanit/etherchannel-tekrar-denemeleri.txt) |
+| Sabit kip ikinci kez denendi | Benzetim belirgin biçimde yavaşladı, pingler zaman aşımına uğradı; üyelerden biri kapatılınca düzeldi | aynı dosya, [görüntü](ekran-goruntuleri/40-sabit-kip-benzetim-yavasladi.jpg) |
+| Kaydedilen dosya yeniden açıldı (LACP) | Kusur yok | [`son-durum-core2.txt`](kanit/son-durum-core2.txt) |
+
+**Vardığım sonuç.** LACP korundu. Kusur yalnızca portların elle kapatılıp açıldığı denemelerin bir kısmında görüldü; cihazın gerçekten yeniden başladığı durumda ve dosya yeniden açıldığında görülmedi. Sabit kip sorunu çözmedi ve ikinci denemede benzetimi bozdu. Sebebini bulamadım; Packet Tracer'ın bağlantı demeti benzetimine özgü olduğunu düşünüyorum, ama bunu kanıtlayamam. Gerçek donanımda aynı şeyin olacağını ya da olmayacağını bu benzetimden çıkarmak doğru olmaz.
+
+**Buradan çıkan ders.** "Ping geri geldi" yedekliliğin sağlam olduğunu göstermez. Arızadan sonra iki cihazın da durumuna bakmak gerekir: demetin iki ucunda üyeler `(P)` mi, yedek cihaz gerçekten yedek mi, komşuluklar kurulu mu. Bu denetim A5'te yapıldı.
+
+**Bedeli.** Bu davranış yeniden görülürse çözüm, etkilenen çekirdeği yeniden başlatmaktır (denendi, işe yaradı). Sürekli izleme olmadan bu durum fark edilmeyebilir; bu depoda izleme (örneğin SNMP ile) yoktur.
 
 ## 6. Erişim listeleri kaynağa en yakın yerde ve varsayılan yasak
 

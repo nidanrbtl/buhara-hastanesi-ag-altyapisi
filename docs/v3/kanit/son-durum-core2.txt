@@ -1,0 +1,34 @@
+# Son durum: 21:26'da kaydedilen buhara-v3.pkt yeniden acildiktan yaklasik bir dakika sonra CORE2.
+# Konsoldan kopyalanmistir (cihaz saati). LACP demeti kurulu, CORE2 butun VLAN'larda yedek,
+# iki OSPF komsulugu FULL, saat esitlenmis.
+CORE2#show etherchannel summary
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+1      Po1(SU)           LACP   Gig0/1(P) Gig0/2(P) 
+CORE2#show standby brief
+                     P indicates configured to preempt.
+                     |
+Interface   Grp  Pri P State    Active          Standby         Virtual IP
+Vl10        10   100 P Standby  192.168.10.2    local           192.168.10.1   
+Vl20        20   100 P Standby  192.168.20.2    local           192.168.20.1   
+Vl30        30   100 P Standby  192.168.30.2    local           192.168.30.1   
+Vl40        40   100 P Standby  192.168.40.2    local           192.168.40.1   
+Vl50        50   100 P Standby  192.168.50.2    local           192.168.50.1   
+Vl70        70   100 P Standby  192.168.70.2    local           192.168.70.1   
+Vl80        80   100 P Standby  192.168.80.2    local           192.168.80.1   
+Vl90        90   100 P Standby  192.168.90.2    local           192.168.90.1   
+Vl99        99   100 P Standby  192.168.99.2    local           192.168.99.1   
+CORE2#show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.1        1   FULL/BDR        00:00:30    10.0.0.9        Vlan100
+10.255.0.3        0   FULL/  -        00:00:30    10.0.0.5        FastEthernet0/24
+CORE2#show ntp status
+Clock is synchronized, stratum 2, reference is 192.168.50.30
+nominal freq is 250.0000 Hz, actual freq is 249.9990 Hz, precision is 2**24
+reference time is EE4840C9.00000170 (19:43:5.368 UTC Sat Oct 10 2026)
+clock offset is 24.00 msec, root delay is 0.00  msec
+root dispersion is 10.95 msec, peer dispersion is 0.12 msec.
+loopfilter state is 'CTRL' (Normal Controlled Loop), drift is - 0.000001193 s/s system poll interval is 4, last update was 15 sec ago.
+CORE2#show clock
+19:43:20.591 UTC Sat Oct 10 2026

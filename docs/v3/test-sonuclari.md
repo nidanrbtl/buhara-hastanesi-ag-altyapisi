@@ -76,12 +76,11 @@ ACC-KAT2 ve ACC-SRV'ye SSH oturumu elle açılmadı; bu iki cihazın vty ayarlar
 | K1 | CORE1 saatini LOG01'den alır | `Clock is synchronized` | Eşitlendi, katman (stratum) 2, kaynak 192.168.50.30 | [`kanit/core1-ntp-hsrp.txt`](kanit/core1-ntp-hsrp.txt) |
 | K2 | LOG01'e cihazlardan kayıt düşer | Birden çok cihazdan kayıt | CORE1 (192.168.50.2), CORE2 (192.168.50.3) ve EDGE'den (10.0.0.1, 10.0.0.5) 16 kayıt | [32](ekran-goruntuleri/32-log01-syslog-kayitlari.jpg) |
 | K3 | Sunucudaki kayıt saati cihaz saatiyle uyuşur | Aynı dakika | LOG01'de 06:36-06:38 PM, cihaz konsolunda 18:36-18:38 | [32](ekran-goruntuleri/32-log01-syslog-kayitlari.jpg) |
-
-Erişim anahtarlarından (192.168.99.11 ve 192.168.99.13) gelen kayıtlar NTP kurulmadan önceki bir oturumda görüldü; o görüntü saklanmadığı için burada kanıt olarak gösterilmiyor. Erişim anahtarlarının syslog ve NTP trafiğine izin veren kurallar denetim aracıyla doğrulandı.
+| K4 | Erişim anahtarlarının kayıtları da LOG01'e düşer | Üç erişim anahtarından kayıt | 192.168.99.11, .12 ve .13'ten, çekirdeklerle aynı saniyede (06:47:02 PM) kayıtlar | [39](ekran-goruntuleri/39-log01-syslog-erisim-anahtarlari.jpg) |
 
 ## Yedeklilik
 
-Yöntem: PC-DOKTOR'dan internet sunucusuna sürekli ping (`ping -t 198.51.100.10`) atılırken arıza oluşturuldu ve kaybolan paketler sayıldı. "Çekirdek arızası" CORE1'in bütün bağlantı portlarının `shutdown` ile kapatılmasıdır; cihazın gücü kesilmedi.
+Yöntem: PC-DOKTOR'dan internet sunucusuna sürekli ping (`ping -t 198.51.100.10`) atılırken arıza oluşturuldu ve kaybolan paketler sayıldı. A1-A4'te "çekirdek arızası" CORE1'in bütün bağlantı portlarının `shutdown` ile kapatılmasıdır. A5'te CORE1 `reload` komutuyla gerçekten yeniden başlatıldı; bu, bir cihazın kapanıp açılmasına en yakın yöntemdir.
 
 ### Çekirdek arızası ve geri dönüş
 
@@ -91,18 +90,31 @@ Yöntem: PC-DOKTOR'dan internet sunucusuna sürekli ping (`ping -t 198.51.100.10
 | A2 | Uplink'lerde OSPF noktadan noktaya yapıldıktan sonra | 5 | 7 | 67 paketten 12 | [25](ekran-goruntuleri/25-ariza2-ospf-p2p-sonrasi.jpg), [26](ekran-goruntuleri/26-ariza2-istatistik.jpg) |
 | A3 | EtherChannel üyeleri düzeltildikten sonra | 6 | 7 | 88 paketten 13 | [30](ekran-goruntuleri/30-ariza3-etherchannel-sonrasi-istatistik.jpg), [31](ekran-goruntuleri/31-ariza3-etherchannel-sonrasi-kayiplar.jpg) |
 | A4 | Dosya kapatılıp yeniden açıldıktan sonra | 5 | 7 | 12 (satır sayılarak) | [33](ekran-goruntuleri/33-ariza4-yeniden-yukleme-sonrasi-kayiplar.jpg), [34](ekran-goruntuleri/34-ariza4-istatistik-satiri-tutarsiz.jpg), [`kanit/ariza4-core1-yeniden-yukleme-sonrasi.txt`](kanit/ariza4-core1-yeniden-yukleme-sonrasi.txt) |
+| A5 | Son yapılandırma; CORE1 `reload` ile yeniden başlatıldı | 8 | ayrı bir kesinti görülmedi | 35 paketten 11 (2'si testin ilk iki paketi) | [37](ekran-goruntuleri/37-ariza5-core1-reload-ping.jpg), [38](ekran-goruntuleri/38-ariza5-core2-kayitlari.jpg), [`kanit/ariza5-core1-reload.txt`](kanit/ariza5-core1-reload.txt) |
 
 Ne anlama geliyor:
 
-- **Trafik her testte kendiliğinden geri geldi**; hiçbirinde elle müdahale gerekmedi.
+- **Doktor bilgisayarının trafiği her testte kendiliğinden geri geldi.** Ancak A4'ten sonra, ping'in göstermediği bir kusur bulundu (aşağıda); "ping geri geldi" tek başına yeterli bir ölçüt değildir.
 - **A1'deki 13 kayıp bir tasarım hatasıydı ve düzeltildi.** CORE1 geri geldiğinde ağ geçidi rolünü 2-4 saniyede aldı ama internete giden yolu yaklaşık 35 saniye sonra öğrendi. Düzeltmeden sonra bu aralık A4'te 5-7 saniyeye indi (tasarım kararı 9).
 - **A4'te CORE2 ağ geçidi rolünü arızadan 6-9 saniye sonra devraldı** ([35](ekran-goruntuleri/35-ariza4-core2-hsrp-kayitlari.jpg)). HSRP'nin varsayılan bekleme süresi 10 saniyedir; zamanlayıcılar kısaltılmadı.
+- **A5, son yapılandırmanın testidir ve iki cihazın durumu da denetlendi.** CORE2 ağ geçidini 8-9 saniyede devraldı. CORE1 18 saniyede geri geldi, açılışından 20-23 saniye sonra ağ geçidi rolünü, 28 saniye sonra internet yolunu aldı. Sonrasında demetin iki ucunda üyeler `(P)`, CORE2 dokuz VLAN'da yedek, bütün OSPF komşulukları kuruluydu. Ping penceresi kısa tutulduğu için (35 paket) geri dönüş anını kapsadığı kesin değildir; geri dönüşün düzgünlüğü ping'e değil cihaz kayıtlarına dayanır.
 - A3'te geçişteki 6 kayıp görüntüde yoktur; toplamdan (13) geri dönüşte görülen 7 çıkarılarak bulunmuştur.
 - A1 ve A2 yapılırken çekirdekler arası EtherChannel aslında kurulmamıştı (üyeler "suspended" durumdaydı, tasarım kararı 5); bu iki testin sayıları o durumu yansıtır.
 
 ### A4'ten sonra bulunan kusur
 
-YAPILACAK: Packet Tracer'daki son sınamadan sonra tamamlanacak. Bulgu: [`kanit/lacp-uye-ayrik-kaldi-core2.txt`](kanit/lacp-uye-ayrik-kaldi-core2.txt).
+A4'ün ardından iki çekirdeğin durumuna bakıldığında demetin bir üyesinin tek yönde çalışmadığı görüldü: CORE2 dört VLAN'da (20, 40, 70, 90) kendini de ağ geçidi sanıyordu ve çekirdekler arası OSPF komşuluğu kurulamıyordu. VLAN 10 etkilenmediği için ping testi bunu göstermedi.
+
+| # | Deneme | Gözlenen | Kanıt |
+|---|---|---|---|
+| C1 | A4'ten sonra iki çekirdekte durum denetimi | CORE1: `Gig0/1(P) Gig0/2(P)`; CORE2: `Gig0/1(I) Gig0/2(P)`, dört VLAN'da Active / standby unknown, Vlan100 komşuluğu yok | [`lacp-uye-ayrik-kaldi-core2.txt`](kanit/lacp-uye-ayrik-kaldi-core2.txt) |
+| C2 | Sabit kipte tek üye kapatılıp açıldı | Üye demetteyken kusur var, kapalıyken yok | [`etherchannel-uye-tek-yonde-sagir.txt`](kanit/etherchannel-uye-tek-yonde-sagir.txt) |
+| C3 | CORE1 `reload` ile yeniden başlatıldı | Kusur yok (A5) | [`ariza5-core1-reload.txt`](kanit/ariza5-core1-reload.txt) |
+| C4 | LACP ile iki kez daha portlar kapatılıp açıldı | Kusur görülmedi | [`etherchannel-tekrar-denemeleri.txt`](kanit/etherchannel-tekrar-denemeleri.txt) |
+| C5 | Sabit kip ikinci kez denendi | Benzetim yavaşladı, pingler zaman aşımına uğradı | aynı dosya, [40](ekran-goruntuleri/40-sabit-kip-benzetim-yavasladi.jpg) |
+| C6 | Kaydedilen dosya yeniden açıldı | LACP demeti kurulu, CORE2 dokuz VLAN'da yedek, OSPF tam | [`son-durum-core2.txt`](kanit/son-durum-core2.txt) |
+
+Sonuç ve gerekçesi tasarım kararı 5'te yazılıdır: LACP korundu; kusurun sebebi bulunamadı ve [sınırlama](sinirlamalar.md#yedeklilik) olarak belgelendi. C4'ün ikinci denemesinde son durum beklenmeden bırakıldı; "görülmedi" o ana kadarki gözlemdir.
 
 ### Erişim anahtarının uplink'i
 
@@ -110,6 +122,13 @@ YAPILACAK: Packet Tracer'daki son sınamadan sonra tamamlanacak. Bulgu: [`kanit/
 |---|---|---|---|---|
 | U1 | ACC-KAT1'in CORE1'e giden hattı kapatıldı | Trafik diğer hattan sürer | Kayıp yok | [27](ekran-goruntuleri/27-uplink-kesildi-kayip-yok.jpg) |
 | U2 | Aynı hat geri açıldı | Kısa kesinti, sonra düzelir | 68 paketten 5'i kayboldu; son 4'ü art arda ve test durdurulduğunda sürüyordu. Hemen ardından yapılan 4 pinglik deneme 4/4 | [28](ekran-goruntuleri/28-uplink-geri-takildi-istatistik.jpg) |
+
+## Erişim katmanı
+
+| # | Deneme | Beklenen | Gözlenen | Kanıt |
+|---|---|---|---|---|
+| P1 | ACC-KAT1'de VLAN 10 için Spanning Tree | CORE1 kök; CORE2'ye giden hat bekletilir | Kök öncelik 4106; Gi0/1 (CORE1) `Root FWD`, Gi0/2 (CORE2) `Altn BLK` | [`kanit/acc-kat1-stp-port-guvenligi.txt`](kanit/acc-kat1-stp-port-guvenligi.txt) |
+| P2 | ACC-KAT1'de port güvenliği | Üç uç portta etkin, en çok 2 adres, ihlal yok | Fa0/1-3: en çok 2, öğrenilen 1, ihlal 0, eylem `Restrict`; Fa0/1 `Secure-up`, 1 sticky adres | aynı dosya |
 
 ## Araçla doğrulama
 
@@ -131,8 +150,9 @@ Ran 54 tests ... OK
 2. **Ada göre ilk web denemesi bir kez başarısız oldu.** Tarayıcıda adla yapılan ilk denemelerden biri açılmadı, yinelendiğinde açıldı. Sebebi ayrıca incelenmedi; ilk DNS sorgusunun zaman aşımına uğraması ile uyumludur.
 3. **EDGE'de SSH oturumundan çıkış.** EDGE'deki SSH oturumunda `exit` yazıldıktan sonra istemci "Connection timed out" iletisi gösterdi ([20](ekran-goruntuleri/20-bt-ssh-core2-acc-edge.jpg)). Oturum açılmış ve komut istemi gelmişti; ileti çıkış anına aittir.
 4. **A4'te Packet Tracer'ın özet satırı yanlıştı** ("Sent = 83, Received = 89, Lost = 0"). Kayıp, ekrandaki zaman aşımı satırları sayılarak yazıldı.
-5. **`show ssh` sürümü 1.99 gösteriyor.** Cihazlarda `ip ssh version 2` ayarlı olmasına karşın Packet Tracer oturum sürümünü 1.99 olarak yazdı; aynı çıktıda "No SSHv1 server connections running" satırı da var ([19](ekran-goruntuleri/19-bt-telnet-kapali-ssh-core1.jpg)). Gözlendiği gibi aktarıldı, yorumlanmadı.
-6. **Geçiş kayıpsız değildir.** Her çekirdek arızasında 5-6, her geri dönüşte 7 paket kayboldu (düzeltmelerden sonra).
+5. **Süreler benzetim saatidir.** Bu sayfadaki "saniye" değerleri cihaz kayıtlarındaki zaman damgalarından alınmıştır. Packet Tracer'ın saati bilgisayarın yüküne göre gerçek saatten yavaş ya da hızlı akabilir; bu değerler gerçek donanım için bir ölçüm değildir.
+6. **`show ssh` sürümü 1.99 gösteriyor.** Cihazlarda `ip ssh version 2` ayarlı olmasına karşın Packet Tracer oturum sürümünü 1.99 olarak yazdı; aynı çıktıda "No SSHv1 server connections running" satırı da var ([19](ekran-goruntuleri/19-bt-telnet-kapali-ssh-core1.jpg)). Gözlendiği gibi aktarıldı, yorumlanmadı.
+7. **Geçiş kayıpsız değildir.** Düzeltmelerden sonraki port kapatma testlerinde (A2-A4) her arızada 5-6, her geri dönüşte 7 paket kayboldu; gerçek yeniden başlatmada (A5) arızada 8 paket kayboldu.
 
 ## Sınanmayanlar
 

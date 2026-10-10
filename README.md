@@ -70,7 +70,7 @@ Her seçimin gerekçesi ve bedeli: [`docs/v3/tasarim-kararlari.md`](docs/v3/tasa
 | DMZ sunucusu hiçbir yere bağlantı başlatamaz | DMZ sunucusundan ping | [N8](docs/v3/test-sonuclari.md#nat-internet-ve-dmz) |
 | Cihazlar yalnızca SSH ile ve yalnızca Bilgi İşlem ağından yönetilir | Telnet, SSH (izinli ve izinsiz kaynaktan) | [Y1-Y5](docs/v3/test-sonuclari.md#cihaz-yönetimi) |
 | Cihaz saatleri eşit, kayıtlar merkezi sunucuda | `show ntp status`, LOG01 kayıt listesi | [K1-K3](docs/v3/test-sonuclari.md#kayıt-ve-saat) |
-| Bir çekirdek kapandığında trafik kendiliğinden sürer | Sürekli ping altında CORE1'in portları kapatıldı | [A1-A4](docs/v3/test-sonuclari.md#yedeklilik) |
+| Bir çekirdek kapandığında ağ geçidini diğeri devralır; çekirdek dönünce roller eski haline gelir | Sürekli ping altında CORE1 kapatıldı (4 kez port kapatarak, 1 kez yeniden başlatarak); son testte iki cihazın durumu da denetlendi | [A1-A5](docs/v3/test-sonuclari.md#yedeklilik) |
 | Bütün matris cihaz yapılandırmasıyla uyuşur (1109 deneme) | `tools/acl_check_v3.py` | [Araçla doğrulama](docs/v3/test-sonuclari.md#araçla-doğrulama) |
 | Araç bozuk yapılandırmayı yakalar | 9 bozma testi | [`tests/test_acl_check_v3.py`](tests/test_acl_check_v3.py) |
 
@@ -135,6 +135,7 @@ En önemlileri (tam liste: [`docs/v3/sinirlamalar.md`](docs/v3/sinirlamalar.md))
 - Aynı VLAN içindeki trafik süzülmez.
 - Kenar yönlendirici, ISS bağlantısı ve sunucular yedeksizdir.
 - Çekirdek arızasında geçiş kayıpsız değildir; ölçülen kayıplar test sonuçlarında yazılıdır.
+- Çekirdekler arası bağlantı demeti, portların elle kapatılıp açıldığı bazı denemelerden sonra tek yönde çalışmadı; sebebi bulunamadı ([tasarım kararı 5](docs/v3/tasarim-kararlari.md#5-çekirdekler-arası-bağlantı-etherchannel-lacp)).
 - Packet Tracer bazı komutları kabul etmedi; yerine ne yapıldığı sınırlamalar sayfasındadır.
 
 ## Depo yapısı

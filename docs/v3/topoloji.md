@@ -72,7 +72,7 @@ flowchart TB
     ACCS --- NVR
 ```
 
-Kesikli çizgiler, erişim anahtarlarının ikinci çekirdeğe (CORE2) giden yedek hatlarıdır. Her erişim anahtarı iki çekirdeğe de bağlıdır; aradaki döngüyü Spanning Tree (STP) keser. STP, anahtarlar arasındaki yedek kabloların döngü oluşturmasını önlemek için bir yolu bekletir ve asıl yol kesilince onu açar. CORE1 bütün VLAN'larda kök anahtar olacak şekilde ayarlanmıştır (öncelik 4096; CORE2 8192).
+Kesikli çizgiler, erişim anahtarlarının ikinci çekirdeğe (CORE2) giden yedek hatlarıdır. Her erişim anahtarı iki çekirdeğe de bağlıdır; aradaki döngüyü Spanning Tree (STP) keser. STP, anahtarlar arasındaki yedek kabloların döngü oluşturmasını önlemek için bir yolu bekletir ve asıl yol kesilince onu açar. CORE1 bütün VLAN'larda kök anahtar olacak şekilde ayarlanmıştır (öncelik 4096; CORE2 8192). ACC-KAT1'de VLAN 10 için doğrulandı: CORE1'e giden port `Root FWD`, CORE2'ye giden port `Altn BLK` ([kanıt](kanit/acc-kat1-stp-port-guvenligi.txt)). Diğer iki erişim anahtarında aynı denetim yapılmadı.
 
 ## Packet Tracer görünümü
 

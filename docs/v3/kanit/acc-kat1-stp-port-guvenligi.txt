@@ -1,0 +1,48 @@
+# ACC-KAT1 konsolundan kopyalanmistir (cihaz saati 19:39, 10 Ekim 2026).
+ACC-KAT1#show spanning-tree vlan 10
+VLAN0010
+  Spanning tree enabled protocol rstp
+  Root ID    Priority    4106
+             Address     0060.3E5E.1279
+             Cost        19
+             Port        25(GigabitEthernet0/1)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32778  (priority 32768 sys-id-ext 10)
+             Address     0000.0CDE.E676
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Gi0/2            Altn BLK 19        128.26   P2p
+Gi0/1            Root FWD 19        128.25   P2p
+
+ACC-KAT1#show port-security
+Secure Port MaxSecureAddr CurrentAddr SecurityViolation Security Action
+               (Count)       (Count)        (Count)
+--------------------------------------------------------------------
+        Fa0/1        2          1                 0         Restrict
+        Fa0/2        2          1                 0         Restrict
+        Fa0/3        2          1                 0         Restrict
+----------------------------------------------------------------------
+ACC-KAT1#show port-security interface FastEthernet0/1
+Port Security              : Enabled
+Port Status                : Secure-up
+Violation Mode             : Restrict
+Aging Time                 : 0 mins
+Aging Type                 : Absolute
+SecureStatic Address Aging : Disabled
+Maximum MAC Addresses      : 2
+Total MAC Addresses        : 1
+Configured MAC Addresses   : 0
+Sticky MAC Addresses       : 1
+Last Source Address:Vlan   : 0090.2170.CD79:10
+Security Violation Count   : 0
+
+ACC-KAT1#configure terminal
+ACC-KAT1(config)#end
+ACC-KAT1#show clock
+19:39:7.368 UTC Sat Oct 10 2026
+*Oct 10, 19:39:07.3939: SYS-5-CONFIG_I: Configured from console by console
