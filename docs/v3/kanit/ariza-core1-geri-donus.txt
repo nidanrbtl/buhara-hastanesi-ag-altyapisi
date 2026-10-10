@@ -1,0 +1,28 @@
+# CORE1, ilk arıza denemesinde arayüzler yeniden açıldığında (no shutdown) konsol kayıtları.
+# HSRP 18:41:01-03'te etkin role geri döndü, OSPF komşulukları ise 18:41:38'de kuruldu.
+# Aradaki yaklaşık 35 saniyede CORE1 internete giden paketler için yol bilmiyordu.
+*Oct 10, 18:40:59.4040: %LINK-5-CHANGED: Interface FastEthernet0/24, changed state to up
+*Oct 10, 18:40:59.4040: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/24, changed state to up
+*Oct 10, 18:40:59.4040: %LINK-5-CHANGED: Interface GigabitEthernet0/1, changed state to up
+*Oct 10, 18:40:59.4040: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan100, changed state to up
+*Oct 10, 18:40:59.4040: SYS-5-CONFIG_I: Configured from console by console
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Standby -> Active
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Standby -> Active
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Standby -> Active
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Standby -> Active
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Standby -> Active
+*Oct 10, 18:41:01.4141:  %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Standby -> Active
+*Oct 10, 18:41:03.4141:  %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Standby -> Active
+*Oct 10, 18:41:03.4141:  %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Standby -> Active
+*Oct 10, 18:41:03.4141:  %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Standby -> Active
+*Oct 10, 18:41:38.4141: 18:41:38: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.3 on FastEthernet0/24 from LOADING to FULL, Loading Done
+*Oct 10, 18:41:38.4141: 18:41:38: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.2 on Vlan100 from LOADING to FULL, Loading Done
+
+# Aynı oturumda denenen ve Packet Tracer 9.0.1'in kabul etmediği komutlar:
+CORE1(config-if)# standby 10 preempt delay minimum 60
+                                     ^
+% Invalid input detected at '^' marker.
+CORE1(config-if)#interface vlan 100
+CORE1(config-if)# ip ospf network point-to-point
+                          ^
+% Invalid input detected at '^' marker.

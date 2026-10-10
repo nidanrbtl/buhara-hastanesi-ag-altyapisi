@@ -1,0 +1,50 @@
+# CORE1, EtherChannel düzeltildikten sonra (bkz. docs/v3/tasarim-kararlari.md, "EtherChannel").
+# İlk kurulumda üye portlara trunk ayarı Port-channel oluşmadan önce verildiği için portlar
+# "suspended" kalmıştı; show etherchannel summary çıktısı Po1(SD) Gig0/1(s) Gig0/2(s) idi ve
+# konsolda "%EC-5-CANNOT_BUNDLE2: Gig0/1 is not compatible with Po1 and will be suspended
+# (vlan mask is different)" iletisi görüldü. Üye portlar sıfırlanıp trunk ayarı yalnızca
+# Port-channel arayüzüne verilince demet kuruldu.
+*Oct 10, 18:55:55.5555: %LINK-5-CHANGED: Interface Port-channel1, changed state to up
+*Oct 10, 18:55:55.5555: %LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to up
+CORE1#show etherchannel summary
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+1      Po1(SU)           LACP   Gig0/1(P) Gig0/2(P) 
+CORE1#show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Po1         on           802.1q         trunking      999
+Fa0/1       on           802.1q         trunking      999
+Fa0/2       on           802.1q         trunking      999
+Fa0/3       on           802.1q         trunking      999
+
+Port        Vlans allowed on trunk
+Po1         10,20,30,40,50,70,80,90,99-100
+Fa0/1       10,20,70,99
+Fa0/2       30,40,80,90,99
+Fa0/3       50,99
+
+Port        Vlans allowed and active in management domain
+Po1         10,20,30,40,50,70,80,90,99,100
+Fa0/1       10,20,70,99
+Fa0/2       30,40,80,90,99
+Fa0/3       50,99
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Po1         10,20,30,40,50,70,80,90,99,100
+Fa0/1       10,20,70,99
+Fa0/2       30,40,80,90,99
+Fa0/3       50,99

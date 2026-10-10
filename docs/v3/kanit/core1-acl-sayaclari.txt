@@ -1,0 +1,76 @@
+# CORE1 üzerinde testlerden sonra alınan erişim listesi sayaçları (show access-lists).
+# "match(es)" değeri o satıra uyan paket sayısıdır.
+CORE1#show access-lists ACL-DOKTOR
+Extended IP access list ACL-DOKTOR
+    permit udp any eq bootpc any eq bootps
+    permit udp 192.168.10.0 0.0.0.3 host 224.0.0.2 eq 1985 (924 match(es))
+    permit icmp 192.168.10.0 0.0.0.255 192.168.10.0 0.0.0.3 (4 match(es))
+    permit udp 192.168.10.0 0.0.0.255 host 192.168.50.10 eq domain (5 match(es))
+    permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.20 eq www (20 match(es))
+    permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.20 eq 443
+    permit tcp 192.168.10.0 0.0.0.255 host 192.168.60.10 eq www (5 match(es))
+    permit tcp 192.168.10.0 0.0.0.255 host 192.168.60.10 eq 443
+    permit tcp 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255 established
+    permit icmp 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255 echo-reply
+    deny ip any 192.168.0.0 0.0.255.255 (16 match(es))
+    deny ip any 10.0.0.0 0.255.255.255
+    deny ip any 172.16.0.0 0.15.255.255
+    permit ip 192.168.10.0 0.0.0.255 any (152 match(es))
+
+CORE1#show access-lists ACL-HEMSIRE
+Extended IP access list ACL-HEMSIRE
+    permit udp any eq bootpc any eq bootps
+    permit udp 192.168.20.0 0.0.0.3 host 224.0.0.2 eq 1985 (926 match(es))
+    permit icmp 192.168.20.0 0.0.0.255 192.168.20.0 0.0.0.3
+    permit udp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq domain
+    deny ip 192.168.20.0 0.0.0.255 host 192.168.50.20 (12 match(es))
+    permit tcp 192.168.20.0 0.0.0.255 host 192.168.60.10 eq www (6 match(es))
+    permit tcp 192.168.20.0 0.0.0.255 host 192.168.60.10 eq 443
+    permit tcp 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255 established
+    permit icmp 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255 echo-reply
+    deny ip any 192.168.0.0 0.0.255.255
+    deny ip any 10.0.0.0 0.255.255.255
+    deny ip any 172.16.0.0 0.15.255.255
+    permit ip 192.168.20.0 0.0.0.255 any
+
+CORE1#show access-lists ACL-MISAFIR
+Extended IP access list ACL-MISAFIR
+    permit udp any eq bootpc any eq bootps
+    permit udp 192.168.90.0 0.0.0.3 host 224.0.0.2 eq 1985 (931 match(es))
+    permit icmp 192.168.90.0 0.0.0.255 192.168.90.0 0.0.0.3
+    deny ip any 192.168.0.0 0.0.255.255 (16 match(es))
+    deny ip any 10.0.0.0 0.255.255.255
+    deny ip any 172.16.0.0 0.15.255.255
+    permit ip 192.168.90.0 0.0.0.255 any (8 match(es))
+
+CORE1#show access-lists ACL-TIBBI
+Extended IP access list ACL-TIBBI
+    permit udp 192.168.70.0 0.0.0.3 host 224.0.0.2 eq 1985 (934 match(es))
+    permit icmp 192.168.70.0 0.0.0.255 192.168.70.0 0.0.0.3
+    permit tcp 192.168.70.0 0.0.0.255 host 192.168.50.20 eq www (5 match(es))
+    permit tcp 192.168.70.0 0.0.0.255 host 192.168.50.20 eq 443
+    permit tcp 192.168.70.0 0.0.0.255 192.168.40.0 0.0.0.255 established
+    permit icmp 192.168.70.0 0.0.0.255 192.168.40.0 0.0.0.255 echo-reply
+    deny ip any any (8 match(es))
+
+CORE1#show access-lists ACL-KAMERA
+Extended IP access list ACL-KAMERA
+    permit udp 192.168.80.0 0.0.0.3 host 224.0.0.2 eq 1985 (933 match(es))
+    permit icmp 192.168.80.0 0.0.0.255 192.168.80.0 0.0.0.3
+    permit tcp 192.168.80.0 0.0.0.255 host 192.168.50.40 eq www (6 match(es))
+    permit tcp 192.168.80.0 0.0.0.255 host 192.168.50.40 eq 443
+    permit tcp 192.168.80.0 0.0.0.255 192.168.40.0 0.0.0.255 established
+    permit icmp 192.168.80.0 0.0.0.255 192.168.40.0 0.0.0.255 echo-reply
+    deny ip any any (12 match(es))
+
+CORE1#show access-lists ACL-SUNUCU
+Extended IP access list ACL-SUNUCU
+    permit udp 192.168.50.0 0.0.0.3 host 224.0.0.2 eq 1985 (702 match(es))
+    permit icmp 192.168.50.0 0.0.0.255 192.168.50.0 0.0.0.3
+    permit udp host 192.168.50.10 eq domain 192.168.0.0 0.0.255.255 (4 match(es))
+    permit udp host 192.168.50.30 eq 123 192.168.50.0 0.0.0.3 (91 match(es))
+    permit udp host 192.168.50.30 eq 123 192.168.99.0 0.0.0.255 (290 match(es))
+    permit udp host 192.168.50.30 eq 123 10.0.0.0 0.0.0.255 (108 match(es))
+    permit tcp 192.168.50.0 0.0.0.255 192.168.0.0 0.0.255.255 established (18 match(es))
+    permit icmp 192.168.50.0 0.0.0.255 192.168.40.0 0.0.0.255 echo-reply (4 match(es))
+    deny ip any any
