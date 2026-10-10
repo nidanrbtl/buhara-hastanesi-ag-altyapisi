@@ -1,0 +1,84 @@
+# Ariza testi 5 - CORE1 "reload" komutuyla yeniden baslatildi (gercek bir cihaz yeniden baslamasina en yakin yontem).
+# Cekirdekler arasi EtherChannel LACP (mode active). Test oncesinde iki cekirdek de yeniden baslatilmisti;
+# NTP henuz esitlenmedigi icin saatler cihazin acilis saatidir (1 Mart 1993), sure olarak okunmalidir.
+# Metinler CORE2 ve CORE1 konsollarindan kopyalanmistir.
+
+--- CORE2: CORE1 kapanirken ve geri gelirken ---
+*Mar 01, 00:02:27.022: %LINK-3-UPDOWN: Interface GigabitEthernet0/1, changed state to down
+*Mar 01, 00:02:27.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down
+*Mar 01, 00:02:27.022: %LINK-3-UPDOWN: Interface GigabitEthernet0/2, changed state to down
+*Mar 01, 00:02:27.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/2, changed state to down
+*Mar 01, 00:02:27.022: %LINK-3-UPDOWN: Interface Port-channel1, changed state to down
+*Mar 01, 00:02:27.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to down
+*Mar 01, 00:02:27.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan100, changed state to down
+*Mar 01, 00:02:27.022: 00:02:27: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on Vlan100 from FULL to DOWN, Neighbor Down: Interface down or detached
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Standby -> Active
+*Mar 01, 00:02:35.022: %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Standby -> Active
+*Mar 01, 00:02:36.022: %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Standby -> Active
+*Mar 01, 00:02:45.022: %LINK-5-CHANGED: Interface GigabitEthernet0/1, changed state to up
+*Mar 01, 00:02:45.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to up
+*Mar 01, 00:02:45.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan100, changed state to up
+*Mar 01, 00:02:45.022: %LINK-5-CHANGED: Interface GigabitEthernet0/2, changed state to up
+*Mar 01, 00:02:45.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/2, changed state to up
+*Mar 01, 00:02:45.022: %LINK-5-CHANGED: Interface Port-channel1, changed state to up
+*Mar 01, 00:02:45.022: %LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to up
+*Mar 01, 00:02:56.022: %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Speak -> Standby
+*Mar 01, 00:02:57.022: %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Speak -> Standby
+*Mar 01, 00:02:58.022: %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Speak -> Standby
+*Mar 01, 00:02:58.022: %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Speak -> Standby
+*Mar 01, 00:02:59.022: %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Speak -> Standby
+*Mar 01, 00:02:59.022: %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Speak -> Standby
+*Mar 01, 00:02:59.022: %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Speak -> Standby
+*Mar 01, 00:02:59.022: %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Speak -> Standby
+*Mar 01, 00:03:00.033: %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Speak -> Standby
+*Mar 01, 00:03:30.033: 00:03:30: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on Vlan100 from LOADING to FULL, Loading Done
+CORE2#show etherchannel summary
+1      Po1(SU)           LACP   Gig0/1(P) Gig0/2(P) 
+CORE2#show standby brief
+Interface   Grp  Pri P State    Active          Standby         Virtual IP
+Vl10        10   100 P Standby  192.168.10.2    local           192.168.10.1   
+Vl20        20   100 P Standby  192.168.20.2    local           192.168.20.1   
+Vl30        30   100 P Standby  192.168.30.2    local           192.168.30.1   
+Vl40        40   100 P Standby  192.168.40.2    local           192.168.40.1   
+Vl50        50   100 P Standby  192.168.50.2    local           192.168.50.1   
+Vl70        70   100 P Standby  192.168.70.2    local           192.168.70.1   
+Vl80        80   100 P Standby  192.168.80.2    local           192.168.80.1   
+Vl90        90   100 P Standby  192.168.90.2    local           192.168.90.1   
+Vl99        99   100 P Standby  192.168.99.2    local           192.168.99.1   
+CORE2#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.1        1   FULL/BDR        00:00:34    10.0.0.9        Vlan100
+10.255.0.3        0   FULL/  -        00:00:32    10.0.0.5        FastEthernet0/24
+CORE2#show clock
+0:3:41.811 UTC Mon Mar 1 1993
+
+--- CORE1: yeniden basladiktan sonra (cihaz acilis saati) ---
+*Mar 01, 00:00:18.000: %LINK-5-CHANGED: Interface Port-channel1, changed state to up
+*Mar 01, 00:00:20.000:  %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Standby -> Active
+*Mar 01, 00:00:21.000:  %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Standby -> Active
+*Mar 01, 00:00:21.000:  %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Standby -> Active
+*Mar 01, 00:00:22.000:  %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Standby -> Active
+*Mar 01, 00:00:22.000:  %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Standby -> Active
+*Mar 01, 00:00:22.000:  %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Standby -> Active
+*Mar 01, 00:00:22.000:  %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Standby -> Active
+*Mar 01, 00:00:22.000:  %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Standby -> Active
+*Mar 01, 00:00:23.000:  %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Standby -> Active
+*Mar 01, 00:00:28.000: 00:00:28: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.3 on FastEthernet0/24 from LOADING to FULL, Loading Done
+CORE1#show etherchannel summary
+1      Po1(SU)           LACP   Gig0/1(P) Gig0/2(P) 
+CORE1#show standby brief   (acilistan 52 saniye sonra)
+Vl10        10   110 P Active   local           192.168.10.3    192.168.10.1   
+Vl20        20   110 P Active   local           192.168.20.3    192.168.20.1   
+Vl30        30   110 P Active   local           192.168.30.3    192.168.30.1   
+Vl40        40   110 P Active   local           192.168.40.3    192.168.40.1   
+Vl50        50   110 P Active   local           192.168.50.3    192.168.50.1   
+Vl70        70   110 P Active   local           192.168.70.3    192.168.70.1   
+Vl80        80   110 P Active   local           192.168.80.3    192.168.80.1   
+Vl90        90   110 P Active   local           192.168.90.3    192.168.90.1   
+Vl99        99   110 P Active   local           192.168.99.3    192.168.99.1   

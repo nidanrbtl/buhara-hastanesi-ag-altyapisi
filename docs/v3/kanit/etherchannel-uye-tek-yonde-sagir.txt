@@ -1,0 +1,75 @@
+# Bulgunun daraltilmasi (sabit kipte, channel-group 1 mode on; iki tarafta Po1(SU) Gig0/1(P) Gig0/2(P)).
+# CORE1'de yalnizca Gig0/1 kapatildi (19:27:11), sonra geri acildi (19:28:08).
+# Sonuc: Gig0/1 kanalda oldugu surece CORE1 -> CORE2 yonunde VLAN 20/40/90 HSRP paketleri ve
+# Vlan100 OSPF paketleri CORE2'ye ulasmiyor; Gig0/1 kapaliyken ulasiyor.
+# Asagidaki metinler iki cihazin konsolundan kopyalanmistir (cihaz saati).
+
+--- CORE2, 19:25:37 (Gig0/1 kanalda) ---
+1      Po1(SU)           -      Gig0/1(P) Gig0/2(P) 
+CORE2#show standby brief
+Interface   Grp  Pri P State    Active          Standby         Virtual IP
+Vl10        10   100 P Standby  192.168.10.2    local           192.168.10.1   
+Vl20        20   100 P Active   local           unknown         192.168.20.1   
+Vl30        30   100 P Standby  192.168.30.2    local           192.168.30.1   
+Vl40        40   100 P Active   local           unknown         192.168.40.1   
+Vl50        50   100 P Standby  192.168.50.2    local           192.168.50.1   
+Vl70        70   100 P Active   local           unknown         192.168.70.1   
+Vl80        80   100 P Standby  192.168.80.2    local           192.168.80.1   
+Vl90        90   100 P Active   local           unknown         192.168.90.1   
+Vl99        99   100 P Standby  192.168.99.2    local           192.168.99.1   
+CORE2#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.3        0   FULL/  -        00:00:34    10.0.0.5        FastEthernet0/24
+CORE2#show spanning-tree vlan 20
+Interface        Role Sts Cost      Prio.Nbr Type
+Po1              Root FWD 3         128.37   P2p
+Fa0/1            Desg FWD 19        128.1    P2p
+
+--- CORE2 konsol kayitlari ---
+*Oct 10, 19:27:11.2727: %LINK-3-UPDOWN: Interface GigabitEthernet0/1, changed state to down
+*Oct 10, 19:27:11.2727: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down
+*Oct 10, 19:27:18.2727: 19:27:17: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on Vlan100 from LOADING to FULL, Loading Done
+*Oct 10, 19:27:21.2727: %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Speak -> Standby
+*Oct 10, 19:27:21.2727: %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Speak -> Standby
+*Oct 10, 19:27:22.2727: %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Speak -> Standby
+*Oct 10, 19:28:08.2828: %LINK-5-CHANGED: Interface GigabitEthernet0/1, changed state to up
+*Oct 10, 19:28:08.2828: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to up
+*Oct 10, 19:28:14.2828: %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Standby -> Active
+*Oct 10, 19:28:15.2828: %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Standby -> Active
+*Oct 10, 19:28:15.2828: %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Standby -> Active
+*Oct 10, 19:28:42.2828: 19:28:42: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on Vlan100 from FULL to DOWN, Neighbor Down: Dead timer expired
+
+--- CORE1, 19:29:13 (Gig0/1 yeniden kanalda) ---
+1      Po1(SU)           -      Gig0/1(P) Gig0/2(P) 
+CORE1#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.3        0   FULL/  -        00:00:31    10.0.0.1        FastEthernet0/24
+10.255.0.2        1   INIT/DROTHER    00:00:38    10.0.0.10       Vlan100
+
+--- CORE1 "reload" ile yeniden baslatildiktan sonra, CORE2, 19:32:57 ---
+*Oct 10, 19:31:13.3131: %LINK-5-CHANGED: Interface Port-channel1, changed state to up
+*Oct 10, 19:31:25.3131: %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Speak -> Standby
+*Oct 10, 19:31:26.3131: %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Speak -> Standby
+*Oct 10, 19:31:27.3131: %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Speak -> Standby
+*Oct 10, 19:31:27.3131: %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Speak -> Standby
+*Oct 10, 19:31:28.3131: %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Speak -> Standby
+*Oct 10, 19:31:29.3131: %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Speak -> Standby
+*Oct 10, 19:31:29.3131: %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Speak -> Standby
+*Oct 10, 19:31:30.3131: %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Speak -> Standby
+*Oct 10, 19:31:53.3131: 19:31:53: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on Vlan100 from LOADING to FULL, Loading Done
+*Oct 10, 19:31:55.3131: %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Speak -> Standby
+1      Po1(SU)           -      Gig0/1(P) Gig0/2(P) 
+CORE2#show standby brief
+Vl10        10   100 P Standby  192.168.10.2    local           192.168.10.1   
+Vl20        20   100 P Standby  192.168.20.2    local           192.168.20.1   
+Vl30        30   100 P Standby  192.168.30.2    local           192.168.30.1   
+Vl40        40   100 P Standby  192.168.40.2    local           192.168.40.1   
+Vl50        50   100 P Standby  192.168.50.2    local           192.168.50.1   
+Vl70        70   100 P Standby  192.168.70.2    local           192.168.70.1   
+Vl80        80   100 P Standby  192.168.80.2    local           192.168.80.1   
+Vl90        90   100 P Standby  192.168.90.2    local           192.168.90.1   
+Vl99        99   100 P Standby  192.168.99.2    local           192.168.99.1   
+CORE2#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.1        1   FULL/BDR        00:00:35    10.0.0.9        Vlan100
+10.255.0.3        0   FULL/  -        00:00:34    10.0.0.5        FastEthernet0/24

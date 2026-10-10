@@ -1,0 +1,31 @@
+# EDGE üzerinde, PC-DOKTOR (192.168.10.100) internet sunucusuna ping attıktan ve web sayfasını
+# açtıktan, DIS-PC (192.0.2.10) hastanenin web sitesini açtıktan sonra alınan çıktı.
+EDGE#show ip nat translations
+Pro  Inside global     Inside local       Outside local      Outside global
+icmp 203.0.113.2:367   192.168.10.100:367 198.51.100.10:367  198.51.100.10:367
+icmp 203.0.113.2:368   192.168.10.100:368 198.51.100.10:368  198.51.100.10:368
+icmp 203.0.113.2:369   192.168.10.100:369 198.51.100.10:369  198.51.100.10:369
+icmp 203.0.113.2:370   192.168.10.100:370 198.51.100.10:370  198.51.100.10:370
+icmp 203.0.113.2:371   192.168.10.100:371 198.51.100.10:371  198.51.100.10:371
+icmp 203.0.113.2:372   192.168.10.100:372 198.51.100.10:372  198.51.100.10:372
+icmp 203.0.113.2:373   192.168.10.100:373 198.51.100.10:373  198.51.100.10:373
+icmp 203.0.113.2:374   192.168.10.100:374 198.51.100.10:374  198.51.100.10:374
+tcp 203.0.113.2:1031   192.168.10.100:1031198.51.100.10:80   198.51.100.10:80
+tcp 203.0.113.2:443    192.168.60.10:443  ---                ---
+tcp 203.0.113.2:80     192.168.60.10:80   ---                ---
+tcp 203.0.113.2:80     192.168.60.10:80   192.0.2.10:1025    192.0.2.10:1025
+
+EDGE#show ip nat statistics
+Total translations: 12 (2 static, 10 dynamic, 12 extended)
+Outside Interfaces: Serial0/0/0
+Inside Interfaces: GigabitEthernet0/0 , GigabitEthernet0/1 , GigabitEthernet0/2
+Hits: 365  Misses: 360
+Expired translations: 333
+Dynamic mappings:
+
+# İkinci arıza denemesinde (OSPF noktadan noktaya ayarından sonra) EDGE konsol kayıtları:
+# CORE1 bağlantısı 18:45:30'da geri geldi, komşuluk 10 saniye sonra kuruldu.
+*Oct 10, 18:44:29.4444: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to down
+*Oct 10, 18:44:29.4444: 18:44:29: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on GigabitEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
+*Oct 10, 18:45:30.4545: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to up
+*Oct 10, 18:45:40.4545: 18:45:40: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.1 on GigabitEthernet0/0 from LOADING to FULL, Loading Done

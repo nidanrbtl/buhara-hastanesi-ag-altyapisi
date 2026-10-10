@@ -1,0 +1,27 @@
+CORE1#show standby brief
+                     P indicates configured to preempt.
+                     |
+Interface   Grp  Pri P State    Active          Standby         Virtual IP
+Vl10        10   110 P Active   local           192.168.10.3    192.168.10.1   
+Vl20        20   110 P Active   local           192.168.20.3    192.168.20.1   
+Vl30        30   110 P Active   local           192.168.30.3    192.168.30.1   
+Vl40        40   110 P Active   local           192.168.40.3    192.168.40.1   
+Vl50        50   110 P Active   local           192.168.50.3    192.168.50.1   
+Vl70        70   110 P Active   local           192.168.70.3    192.168.70.1   
+Vl80        80   110 P Active   local           192.168.80.3    192.168.80.1   
+Vl90        90   110 P Active   local           192.168.90.3    192.168.90.1   
+Vl99        99   110 P Active   local           192.168.99.3    192.168.99.1   
+CORE1#show ip ospf neighbor
+
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.0.2        1   FULL/DR         00:00:31    10.0.0.10       Vlan100
+10.255.0.3        1   FULL/DR         00:00:37    10.0.0.1        FastEthernet0/24
+CORE1#show ip dhcp binding
+IP address       Client-ID/              Lease expiration        Type
+                 Hardware address
+192.168.10.100   0090.2170.CD79           --                     Automatic
+192.168.20.100   0002.4A27.C2E2           --                     Automatic
+192.168.30.100   0001.42BA.4422           --                     Automatic
+192.168.40.100   0001.420D.3921           --                     Automatic
+192.168.90.100   0090.2BCC.B677           --                     Automatic

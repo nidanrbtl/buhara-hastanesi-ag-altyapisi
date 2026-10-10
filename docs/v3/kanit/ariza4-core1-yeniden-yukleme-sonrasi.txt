@@ -1,0 +1,45 @@
+# Ariza testi 4 - kaydedilen .pkt yeniden acildiktan sonra (son durum)
+# CORE1 tum baglantilari 18:46:18'de kapatildi (interface range Fa0/1-3, Fa0/24, Gi0/1-2 shutdown),
+# 18:47:02'de geri acildi. Asagidaki metin CORE1 konsolundan kopyalanmistir (cihaz saati).
+# HSRP Active: 18:47:05-07, OSPF (EDGE ile) FULL: 18:47:12.
+
+CORE1(config-if-range)#end
+CORE1#show clock
+18:47:2.885 UTC Sat Oct 10 2026
+CORE1#
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface FastEthernet0/1, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/1, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan10, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan20, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan70, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan99, changed state to up
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface FastEthernet0/2, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/2, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan30, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan40, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan80, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan90, changed state to up
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface FastEthernet0/3, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/3, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan50, changed state to up
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface FastEthernet0/24, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/24, changed state to up
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface GigabitEthernet0/1, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan100, changed state to up
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface GigabitEthernet0/2, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/2, changed state to up
+*Oct 10, 18:47:02.4747: SYS-5-CONFIG_I: Configured from console by console
+*Oct 10, 18:47:02.4747: %LINK-5-CHANGED: Interface Port-channel1, changed state to up
+*Oct 10, 18:47:02.4747: %LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to up
+*Oct 10, 18:47:05.4747:  %HSRP-6-STATECHANGE: Vlan10 Grp 10 state Standby -> Active
+*Oct 10, 18:47:06.4747:  %HSRP-6-STATECHANGE: Vlan50 Grp 50 state Standby -> Active
+*Oct 10, 18:47:06.4747:  %HSRP-6-STATECHANGE: Vlan40 Grp 40 state Standby -> Active
+*Oct 10, 18:47:06.4747:  %HSRP-6-STATECHANGE: Vlan80 Grp 80 state Standby -> Active
+*Oct 10, 18:47:06.4747:  %HSRP-6-STATECHANGE: Vlan99 Grp 99 state Standby -> Active
+*Oct 10, 18:47:06.4747:  %HSRP-6-STATECHANGE: Vlan90 Grp 90 state Standby -> Active
+*Oct 10, 18:47:07.4747:  %HSRP-6-STATECHANGE: Vlan70 Grp 70 state Standby -> Active
+*Oct 10, 18:47:07.4747:  %HSRP-6-STATECHANGE: Vlan30 Grp 30 state Standby -> Active
+*Oct 10, 18:47:07.4747:  %HSRP-6-STATECHANGE: Vlan20 Grp 20 state Standby -> Active
+*Oct 10, 18:47:12.4747: 18:47:12: %OSPF-5-ADJCHG: Process 1, Nbr 10.255.0.3 on FastEthernet0/24 from LOADING to FULL, Loading Done
+CORE1#

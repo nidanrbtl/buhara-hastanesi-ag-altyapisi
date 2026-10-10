@@ -1,0 +1,28 @@
+# CORE2 "reload" ile yeniden baslatildiktan sonra NTP. Konsoldan kopyalanmistir.
+# Acilistan 3 dk 41 sn sonra saat henuz esitlenmemisti; 5 dk 25 sn sonra "synchronized" oldu,
+# kisa sure sonra saat 1993'ten gercek degere atladi.
+
+CORE2#show ntp status          (acilistan 0:03:41 sonra)
+Clock is unsynchronized, stratum 16, no reference clock
+loopfilter state is 'FSET' (Drift set from file), drift is - 0.000001193 s/s system poll interval is 4, never updated.
+CORE2#show ntp associations
+address         ref clock       st   when     poll    reach  delay          offset            disp
+ ~192.168.50.30 127.127.1.1     1    13       16      77     62.00          1060716899564.00  0.12
+CORE2#ping 192.168.50.30
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0/61/208 ms
+
+CORE2#show ntp status
+Clock is synchronized, stratum 2, reference is 192.168.50.30
+nominal freq is 250.0000 Hz, actual freq is 249.9990 Hz, precision is 2**24
+reference time is AF1ECFAD.00000271 (0:0:45.625 UTC Mon Mar 1 1993)
+clock offset is 1060716899558.00 msec, root delay is 84.00  msec
+root dispersion is 66.75 msec, peer dispersion is 0.11 msec.
+loopfilter state is 'CTRL' (Normal Controlled Loop), drift is - 0.000001193 s/s system poll interval is 4, last update was 6 sec ago.
+CORE2#show ntp associations
+address         ref clock       st   when     poll    reach  delay          offset            disp
+*~192.168.50.30 127.127.1.1     1    6        16      377    84.00          1060716899558.00  0.11
+CORE2#show clock
+0:5:25.974 UTC Mon Mar 1 1993
+CORE2#show clock
+19:40:39.531 UTC Sat Oct 10 2026

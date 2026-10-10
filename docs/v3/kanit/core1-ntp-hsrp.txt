@@ -1,0 +1,22 @@
+CORE1#show ntp status
+Clock is synchronized, stratum 2, reference is 192.168.50.30
+nominal freq is 250.0000 Hz, actual freq is 249.9990 Hz, precision is 2**24
+reference time is EE483492.00000359 (18:50:58.857 UTC Sat Oct 10 2026)
+clock offset is 0.00 msec, root delay is 0.00  msec
+root dispersion is 10.32 msec, peer dispersion is 0.12 msec.
+loopfilter state is 'CTRL' (Normal Controlled Loop), drift is - 0.000001193 s/s system poll interval is 4, last update was 6 sec ago.
+CORE1#show clock
+18:51:4.903 UTC Sat Oct 10 2026
+CORE1#show standby brief
+                     P indicates configured to preempt.
+                     |
+Interface   Grp  Pri P State    Active          Standby         Virtual IP
+Vl10        10   110 P Active   local           192.168.10.3    192.168.10.1   
+Vl20        20   110 P Active   local           192.168.20.3    192.168.20.1   
+Vl30        30   110 P Active   local           192.168.30.3    192.168.30.1   
+Vl40        40   110 P Active   local           192.168.40.3    192.168.40.1   
+Vl50        50   110 P Active   local           192.168.50.3    192.168.50.1   
+Vl70        70   110 P Active   local           192.168.70.3    192.168.70.1   
+Vl80        80   110 P Active   local           192.168.80.3    192.168.80.1   
+Vl90        90   110 P Active   local           192.168.90.3    192.168.90.1   
+Vl99        99   110 P Active   local           192.168.99.3    192.168.99.1   
